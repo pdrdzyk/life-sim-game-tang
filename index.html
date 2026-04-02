@@ -9,17 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --shell: #0d0d0f;
-      --shell-rim: #2a2a2e;
-      --feed-bg: #ffffff;
-      --ink: #1c1b19;
+      --shell: #252423;
+      --shell-rim: #3a3836;
+      --paper: #f7f4ee;
+      --card: #fffefb;
+      --ink: #1a1917;
       --muted: #6b6560;
-      --accent: #c44536;
-      --dock: #1a2f4a;
-      --dock-light: #2a4a6f;
-      --age-green: #2ecc71;
-      --age-green-dark: #27ae60;
-      --bar-track: #e8e4dc;
+      --accent: #9e2a2b;
+      --accent-soft: #c44536;
+      --teal: #2a6d6b;
+      --bar-track: #e3ded4;
+      --nav-bg: #ece6dc;
+      --age-green: #2db573;
+      --age-green-dark: #1f8f5c;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
@@ -28,7 +30,8 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      background: #18181b;
+      background: #1e1d1b;
+      background-image: linear-gradient(165deg, #2a2826 0%, #1a1918 45%, #141312 100%);
     }
 
     body {
@@ -37,18 +40,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem 0.75rem calc(1rem + var(--safe-bottom));
+      padding: 0.65rem 0.5rem calc(0.65rem + var(--safe-bottom));
     }
 
     .device {
       width: 100%;
-      max-width: 390px;
-      height: min(792px, calc(100vh - 2rem));
-      max-height: min(792px, calc(100vh - 2rem));
+      max-width: 400px;
+      height: min(820px, calc(100vh - 1.2rem));
+      max-height: min(820px, calc(100vh - 1.2rem));
       background: var(--shell);
-      border-radius: 42px;
-      padding: 10px;
-      box-shadow: 0 0 0 1px var(--shell-rim), 0 24px 80px rgba(0, 0, 0, 0.55);
+      border-radius: 28px;
+      padding: 8px;
+      box-shadow: 0 0 0 1px var(--shell-rim), 0 20px 50px rgba(0, 0, 0, 0.45);
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
@@ -68,10 +71,9 @@
     }
 
     .app {
-      background: #e8e2d9;
-      border-radius: 34px;
+      background: var(--paper);
+      border-radius: 22px;
       overflow: hidden;
-      /* 固定高度：不随纪事条数增高，内容在 .life-feed 内滚动 */
       height: 100%;
       max-height: 100%;
       min-height: 0;
@@ -88,10 +90,6 @@
     }
 
     .screen.active { display: flex; }
-
-    #screen-play {
-      position: relative;
-    }
 
     /* —— 开局 —— */
     #screen-create { overflow-y: auto; }
@@ -140,93 +138,15 @@
       cursor: pointer;
     }
 
-    /* —— BitLife 式顶栏 —— */
-    .bl-header {
-      flex-shrink: 0;
-      background: linear-gradient(180deg, #f5f0e8 0%, #e8e2d9 100%);
-      padding: 2rem 0.75rem 0.5rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    }
-    .bl-title-row {
+    /* —— 游戏主壳：竖向卡片 + 人生模拟器层级 —— */
+    #screen-play {
+      position: relative;
+      flex: 1;
+      min-height: 0;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-      gap: 0.5rem;
-    }
-    .bl-age-phase {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #4a453c;
-      white-space: nowrap;
-    }
-    .bl-brand {
-      font-family: "Ma Shan Zheng", cursive;
-      font-size: 1.15rem;
-      color: var(--accent);
-      letter-spacing: 0.06em;
-    }
-    .bl-identity-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.65rem;
-    }
-    .bl-avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #fff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
-      flex-shrink: 0;
-    }
-    .bl-id-text { min-width: 0; flex: 1; }
-    .bl-name {
-      font-weight: 700;
-      font-size: 1.05rem;
-      line-height: 1.2;
-    }
-    .bl-flag {
-      display: inline-block;
-      font-size: 0.7rem;
-      margin-left: 0.35rem;
-      opacity: 0.85;
-    }
-    .bl-job {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 0.15rem;
-      line-height: 1.35;
-    }
-    .bl-meta {
-      font-size: 0.74rem;
-      color: #5c564e;
-      margin-top: 0.25rem;
-    }
-    .bl-meta span { font-weight: 600; color: #3d3a36; }
-    .bl-bank {
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .bl-bank-label {
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
-    .bl-bank-val {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #b8860b;
-      line-height: 1.1;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 2px rgba(139, 90, 0, 0.18);
-    }
-    .bl-bank-unit {
-      font-size: 0.6rem;
-      color: var(--muted);
-      margin-top: 0.1rem;
+      flex-direction: column;
     }
 
-    /* —— 主内容区：纪事 + 底栏（可被子页面覆盖）—— */
     .play-main {
       flex: 1;
       min-height: 0;
@@ -235,367 +155,337 @@
       position: relative;
     }
 
-    .home-view {
+    .sim-card {
       flex: 1;
       min-height: 0;
       display: flex;
       flex-direction: column;
-    }
-
-    /* 当前事件卡 */
-    .event-card-wrap {
-      flex-shrink: 0;
-      background: #faf6ef;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      padding: 0.55rem 0.75rem 0.65rem;
-      max-height: 38%;
-      overflow-y: auto;
-    }
-    .event-card-wrap .event-card-title {
-      font-family: "Ma Shan Zheng", cursive;
-      font-size: 1.05rem;
-      color: var(--accent);
-      margin: 0 0 0.35rem;
-    }
-    .event-card-wrap .event-card-desc {
-      font-size: 0.78rem;
-      line-height: 1.55;
-      color: #3d3a36;
-      margin: 0 0 0.4rem;
-    }
-    .event-card-wrap .event-card-result {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.45;
-    }
-    .event-card-placeholder {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-    .life-feed-wrap {
-      flex: 1;
-      min-height: 0;
-      background: var(--feed-bg);
+      background: var(--card);
+      margin: 0.35rem 0.4rem 0.45rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
     }
-    .life-feed {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 0.55rem 0.75rem 0.4rem;
-      font-size: 0.76rem;
-      line-height: 1.45;
-      color: #2d2a26;
-    }
-    .feed-line {
-      padding: 0.35rem 0;
-      border-bottom: 1px solid #f0ebe4;
-    }
-    .feed-line:last-child { border-bottom: none; }
-    .feed-line .when {
-      font-size: 0.6rem;
-      color: #9a948c;
-      margin-bottom: 0.15rem;
-    }
-    .feed-hint {
-      color: var(--muted);
-      font-size: 0.74rem;
+
+    .sim-brand {
+      flex-shrink: 0;
       text-align: center;
-      padding: 1.25rem 0.5rem;
-      line-height: 1.55;
-    }
-
-    /* —— 底栏：加一岁突出 + 六键 —— */
-    .dock-wrap {
-      flex-shrink: 0;
-      background: var(--dock);
-      padding: 0.45rem 0.5rem calc(0.55rem + var(--safe-bottom));
-    }
-    .dock-primary {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 0.45rem;
-    }
-    .btn-age-wide {
-      min-width: 200px;
-      padding: 0.65rem 1.25rem;
-      border-radius: 999px;
-      border: none;
-      background: linear-gradient(180deg, #3ddc82 0%, var(--age-green) 40%, var(--age-green-dark) 100%);
-      color: #fff;
-      font-family: inherit;
+      font-family: "Ma Shan Zheng", cursive;
       font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #1e8448, 0 8px 16px rgba(0, 0, 0, 0.22);
-      transition: transform 0.1s, filter 0.15s;
+      color: var(--accent-soft);
+      letter-spacing: 0.12em;
+      padding: 0.4rem 0.5rem 0.15rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
-    .btn-age-wide:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      filter: grayscale(0.3);
-      box-shadow: 0 2px 0 #555;
-    }
-    .btn-age-wide:not(:disabled):active { transform: scale(0.98); }
-    .dock-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.35rem;
-    }
-    .dock-grid-btn {
-      border: none;
-      border-radius: 12px;
-      background: var(--dock-light);
-      color: #c8d8e8;
-      font-family: inherit;
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 0.55rem 0.25rem;
-      cursor: pointer;
-      transition: transform 0.1s, background 0.15s;
-    }
-    .dock-grid-btn:active { transform: scale(0.97); }
 
-    .action-dock {
+    /* 顶部角色栏：姓名 + 年龄最醒目 */
+    .sim-identity {
       flex-shrink: 0;
-      background: var(--dock);
-      padding: 0.5rem 0.35rem 0.6rem;
-      display: none;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 0.15rem;
-    }
-    .dock-icon-btn {
-      border: none;
-      border-radius: 12px;
-      background: var(--dock-light);
-      color: #c8d8e8;
-      cursor: pointer;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0.3rem 0.15rem;
-      transition: transform 0.1s, background 0.15s;
+      align-items: stretch;
+      gap: 0.45rem;
+      padding: 0.45rem 0.55rem 0.4rem;
+      background: linear-gradient(180deg, #faf8f3 0%, var(--card) 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .sim-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+    .sim-id-center {
       flex: 1;
       min-width: 0;
-      max-width: 56px;
-      min-height: 54px;
-      gap: 0.2rem;
     }
-    .dock-icon-btn:active { transform: scale(0.96); }
-    .dock-icon-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
-    .dock-lbl {
-      font-size: 0.52rem;
-      font-weight: 700;
-      color: #9eb8d8;
-      letter-spacing: 0.02em;
-      line-height: 1.1;
-      text-align: center;
+    .sim-name-age {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.35rem;
     }
-
-    .age-wrap {
-      position: relative;
+    .sim-name {
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      line-height: 1.15;
+    }
+    .sim-agebox {
       flex-shrink: 0;
-      width: 84px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .btn-age {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      border: none;
-      background: linear-gradient(180deg, #3ddc82 0%, var(--age-green) 35%, var(--age-green-dark) 100%);
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #1e8448, 0 8px 16px rgba(0, 0, 0, 0.25);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      transition: transform 0.1s, filter 0.15s;
-    }
-    .btn-age:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      filter: grayscale(0.3);
-      box-shadow: 0 2px 0 #555;
-    }
-    .btn-age:not(:disabled):active { transform: scale(0.97); }
-    .btn-age .plus {
-      font-size: 1.75rem;
-      font-weight: 300;
+      text-align: right;
       line-height: 1;
-      margin-bottom: 2px;
     }
-    .btn-age .age-lbl {
+    .sim-age-num {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--teal);
+      font-variant-numeric: tabular-nums;
+    }
+    .sim-age-suf {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-left: 1px;
+    }
+    .sim-meta {
       font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      line-height: 1.35;
     }
-    .btn-age-mini {
-      position: absolute;
-      right: -4px;
-      bottom: 4px;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: 2px solid var(--dock);
-      background: #e74c3c;
-      color: #fff;
-      font-size: 1rem;
-      line-height: 1;
-      cursor: pointer;
+    .sim-dot { margin: 0 0.2rem; opacity: 0.5; }
+    .sim-phase-line {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 0;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
     }
-    .btn-age-mini:disabled { opacity: 0.4; pointer-events: none; }
-
-    /* —— 六维属性条 —— */
-    .stat-bars {
+    .sim-phase-pill {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent);
+      padding: 0.15rem 0.4rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+    .sim-era {
+      font-size: 0.62rem;
+      color: var(--muted);
+    }
+    .sim-money {
       flex-shrink: 0;
-      background: #f5f0e8;
-      padding: 0.45rem 0.65rem 0.5rem;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: 0.2rem;
+      border-left: 1px solid rgba(0, 0, 0, 0.06);
+      min-width: 3.2rem;
+    }
+    .sim-money-lbl { font-size: 0.58rem; color: var(--muted); }
+    .sim-money-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #a67c1c;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 属性条：紧凑状态栏 */
+    .sim-stats {
+      flex-shrink: 0;
+      padding: 0.35rem 0.5rem 0.4rem;
+      background: #f3efe8;
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      max-height: 42%;
+      max-height: 30vh;
       overflow-y: auto;
     }
     .stat-row {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
-      margin-bottom: 0.35rem;
+      gap: 0.35rem;
+      margin-bottom: 0.22rem;
     }
     .stat-row:last-child { margin-bottom: 0; }
-    .stat-ico {
-      width: 22px;
-      text-align: center;
-      font-size: 1rem;
-    }
     .stat-name {
-      width: 2.2rem;
-      font-size: 0.68rem;
+      width: 2rem;
+      font-size: 0.62rem;
       font-weight: 600;
       color: var(--muted);
     }
     .stat-track {
       flex: 1;
-      height: 10px;
+      height: 7px;
       background: var(--bar-track);
-      border-radius: 6px;
+      border-radius: 4px;
       overflow: hidden;
     }
     .stat-fill {
       height: 100%;
-      border-radius: 6px;
-      transition: width 0.35s ease;
+      border-radius: 4px;
+      transition: width 0.3s ease;
     }
-    .stat-fill.hp { background: linear-gradient(90deg, #56ccf2, #2d9cdb); }
-    .stat-fill.study { background: linear-gradient(90deg, #a855f7, #7c3aed); }
-    .stat-fill.look { background: linear-gradient(90deg, #f472b6, #db2777); }
-    .stat-fill.mind { background: linear-gradient(90deg, #2dd4bf, #0d9488); }
-    .stat-fill.home { background: linear-gradient(90deg, #eab308, #b45309); }
-    .stat-fill.fame { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .stat-fill.hp { background: linear-gradient(90deg, #5eb8e8, #2d8fc9); }
+    .stat-fill.study { background: linear-gradient(90deg, #9b7bd8, #6b4fc9); }
+    .stat-fill.look { background: linear-gradient(90deg, #e891b0, #c94d7c); }
+    .stat-fill.mind { background: linear-gradient(90deg, #3fbfb0, #2a8f85); }
+    .stat-fill.home { background: linear-gradient(90deg, #d4a012, #9a6b12); }
+    .stat-fill.fame { background: linear-gradient(90deg, #e8a23a, #c97816); }
     .stat-pct {
-      width: 2rem;
+      width: 1.75rem;
       text-align: right;
-      font-size: 0.7rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      color: #444;
+      color: #555;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* —— 事件弹窗（居中）—— */
-    .modal {
-      position: absolute;
-      inset: 0;
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.5);
+    /* 主事件区：视觉中心 */
+    .sim-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, #fffdf9 0%, #f9f6ef 100%);
+      border-top: 1px solid rgba(158, 42, 43, 0.12);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
-    .modal.open { display: flex; }
-    .modal-card {
-      width: 100%;
-      max-width: 340px;
-      max-height: 82vh;
+    .sim-stage-inner {
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
-      background: #fffdf8;
-      border-radius: 18px;
-      padding: 0;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
-      animation: modalIn 0.28s ease;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.65rem 0.65rem 0.75rem;
     }
-    @keyframes modalIn {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    .stage-tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 0 0.35rem;
     }
-    .modal-scene-wrap {
-      position: relative;
-      height: 120px;
-    }
-    .modal-scene-wrap img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-    }
-    .modal-scene-tag {
-      position: absolute;
-      left: 10px;
-      bottom: 8px;
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: #fff;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-      background: rgba(0, 0, 0, 0.35);
-      padding: 0.2rem 0.45rem;
-      border-radius: 6px;
-    }
-    .modal-inner { padding: 0.9rem 1rem 1.1rem; }
-    .modal-inner h2 {
+    .stage-title {
       font-family: "Ma Shan Zheng", cursive;
-      font-size: 1.4rem;
+      font-size: 1.28rem;
       color: var(--accent);
       margin: 0 0 0.45rem;
+      line-height: 1.25;
     }
-    .modal-inner .body {
-      font-size: 0.88rem;
+    .stage-body {
+      font-size: 0.82rem;
       line-height: 1.65;
-      color: #3d3a36;
-      margin: 0 0 0.85rem;
+      color: #2e2c28;
+      margin: 0 0 0.65rem;
     }
-    .modal-inner .choices { display: flex; flex-direction: column; gap: 0.45rem; }
-    .modal-inner button.choice {
+    .stage-body--compact { font-size: 0.78rem; margin-bottom: 0.45rem; }
+    .stage-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .stage-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .stage-choice-btn {
       width: 100%;
       text-align: left;
       font-family: inherit;
-      font-size: 0.84rem;
+      font-size: 0.8rem;
       line-height: 1.45;
-      padding: 0.7rem 0.75rem;
-      border-radius: 12px;
-      border: 1px solid rgba(196, 69, 54, 0.35);
-      background: linear-gradient(180deg, #fff 0%, #faf6ef 100%);
+      padding: 0.62rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid rgba(158, 42, 43, 0.28);
+      background: #fff;
       color: var(--ink);
       cursor: pointer;
+      transition: background 0.15s, transform 0.08s;
+    }
+    .stage-choice-btn:active { transform: scale(0.99); background: #fff9f5; }
+
+    /* 主操作：加一岁 */
+    .sim-primary-wrap {
+      flex-shrink: 0;
+      padding: 0.45rem 0.65rem 0.35rem;
+      background: var(--card);
+    }
+    .btn-sim-primary {
+      width: 100%;
+      padding: 0.72rem 1rem;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(180deg, #3dde8a 0%, var(--age-green) 42%, var(--age-green-dark) 100%);
+      box-shadow: 0 4px 0 #156644, 0 6px 14px rgba(0, 80, 50, 0.25);
+      transition: transform 0.1s, filter 0.15s;
+    }
+    .btn-sim-primary:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      filter: grayscale(0.25);
+      box-shadow: 0 2px 0 #666;
+    }
+    .btn-sim-primary:not(:disabled):active { transform: scale(0.99); }
+
+    /* 底部功能导航 */
+    .sim-nav {
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.28rem;
+      padding: 0 0.5rem 0.35rem;
+      background: var(--card);
+    }
+    .sim-nav-btn {
+      border: none;
+      border-radius: 9px;
+      background: var(--nav-bg);
+      color: #4a453c;
+      font-family: inherit;
+      font-size: 0.58rem;
+      font-weight: 600;
+      padding: 0.42rem 0.15rem;
+      cursor: pointer;
+      line-height: 1.2;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+    }
+    .sim-nav-btn:active { background: #e0d8cc; }
+
+    /* 纪事条：克制 */
+    .sim-chronicle {
+      flex-shrink: 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      background: #f0ebe3;
+      padding: 0.3rem 0.5rem 0.4rem;
+      max-height: 72px;
+    }
+    .sim-chronicle-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.2rem;
+    }
+    .sim-chronicle-scroll {
+      max-height: 48px;
+      overflow-y: auto;
+      font-size: 0.65rem;
+      line-height: 1.4;
+      color: #5a544c;
+    }
+    .feed-line {
+      padding-bottom: 0.25rem;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+      margin-bottom: 0.25rem;
+    }
+    .feed-line:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .feed-line .when {
+      font-size: 0.58rem;
+      color: #9a948c;
+      margin-bottom: 0.1rem;
+    }
+    .feed-hint {
+      color: var(--muted);
+      font-size: 0.65rem;
+      text-align: center;
+      line-height: 1.45;
+      padding: 0.2rem 0;
     }
 
-    /* —— 四键子页面（自底部滑入，顶栏保持在外）—— */
+    /* —— 子页面（自底部滑入）—— */
     .subpage-root {
       position: absolute;
       left: 0;
@@ -730,7 +620,7 @@
     #end-identity { font-size: 0.88rem; color: #4a453c; margin: 0 0 0.75rem; line-height: 1.6; }
 
     .fine-print {
-      max-width: 390px;
+      max-width: 400px;
       margin: 0.75rem auto 0;
       font-size: 0.65rem;
       color: rgba(255, 255, 255, 0.35);
@@ -765,80 +655,65 @@
       </section>
 
       <section class="screen" id="screen-play">
-        <header class="bl-header">
-          <div class="bl-title-row">
-            <span class="bl-brand">长安岁华</span>
-            <span class="bl-age-phase"><span id="hdr-age">0</span> 岁 · <span id="hdr-phase">童蒙</span></span>
-          </div>
-          <div class="bl-identity-row">
-            <img class="bl-avatar" id="hdr-avatar" src="assets/tang-portrait-male.png" alt="" />
-            <div class="bl-id-text">
-              <div class="bl-name">
-                <span id="hdr-name">李子谦</span>
-                <span class="bl-flag" id="hdr-gender">男子</span>
-              </div>
-              <div class="bl-meta">
-                出身 <span id="hdr-origin">士族</span> · 居 <span id="hdr-city">长安</span>
-              </div>
-              <div class="bl-job" id="hdr-status">童蒙 · 公元 713 年 · 长安</div>
-              <div class="bl-job" id="hdr-path">志业未定向</div>
-            </div>
-            <div class="bl-bank">
-              <div class="bl-bank-label">银钱</div>
-              <div class="bl-bank-val" id="hdr-wealth">50</div>
-              <div class="bl-bank-unit">贯（约）</div>
-            </div>
-          </div>
-        </header>
-
         <div class="play-main">
-          <div class="home-view" id="home-view">
-            <div class="stat-bars" id="stat-bars"></div>
-
-            <div class="event-card-wrap" id="event-card-wrap">
-              <div id="event-card"></div>
+          <div class="sim-card">
+            <div class="sim-brand">长安岁华</div>
+            <div class="sim-identity">
+              <img class="sim-avatar" id="hdr-avatar" src="assets/tang-portrait-male.png" alt="" />
+              <div class="sim-id-center">
+                <div class="sim-name-age">
+                  <span class="sim-name" id="hdr-name">李子谦</span>
+                  <div class="sim-agebox">
+                    <span class="sim-age-num" id="hdr-age">0</span><span class="sim-age-suf">岁</span>
+                  </div>
+                </div>
+                <div class="sim-meta">
+                  <span id="hdr-gender">男子</span><span class="sim-dot">·</span>
+                  <span id="hdr-origin">士族</span><span class="sim-dot">·</span>
+                  <span>居 <span id="hdr-city">长安</span></span>
+                </div>
+                <div class="sim-phase-line">
+                  <span class="sim-phase-pill" id="hdr-phase">童蒙</span>
+                  <span class="sim-era" id="hdr-era">开元 713 年 · 长安</span>
+                </div>
+              </div>
+              <div class="sim-money">
+                <span class="sim-money-lbl">银钱</span>
+                <span class="sim-money-val" id="hdr-wealth">50</span>
+              </div>
             </div>
 
-            <div class="life-feed-wrap">
-              <div class="life-feed" id="life-feed"></div>
+            <div class="sim-stats" id="stat-bars"></div>
+
+            <div class="sim-stage" id="sim-stage">
+              <div class="sim-stage-inner" id="stage-inner"></div>
             </div>
 
-            <div class="dock-wrap">
-              <div class="dock-primary">
-                <button type="button" class="btn-age-wide" id="btn-next-year">加一岁</button>
-              </div>
-              <div class="dock-grid">
-                <button type="button" class="dock-grid-btn" id="btn-family">家庭</button>
-                <button type="button" class="dock-grid-btn" id="btn-study">学业</button>
-                <button type="button" class="dock-grid-btn" id="btn-career">仕途</button>
-                <button type="button" class="dock-grid-btn" id="btn-relations">关系</button>
-                <button type="button" class="dock-grid-btn" id="btn-assets">资产</button>
-              </div>
+            <div class="sim-primary-wrap">
+              <button type="button" class="btn-sim-primary" id="btn-next-year">加一岁</button>
+            </div>
+
+            <nav class="sim-nav" aria-label="功能入口">
+              <button type="button" class="sim-nav-btn" id="btn-family">家庭</button>
+              <button type="button" class="sim-nav-btn" id="btn-study">学业</button>
+              <button type="button" class="sim-nav-btn" id="btn-career">仕途</button>
+              <button type="button" class="sim-nav-btn" id="btn-relations">关系</button>
+              <button type="button" class="sim-nav-btn" id="btn-assets">资产</button>
+            </nav>
+
+            <div class="sim-chronicle">
+              <div class="sim-chronicle-label">纪事</div>
+              <div class="sim-chronicle-scroll" id="life-feed"></div>
             </div>
           </div>
 
           <div class="subpage-root" id="subpage-root" aria-hidden="true">
             <div class="subpage-toolbar">
               <button type="button" class="subpage-back" id="subpage-back">← 返回</button>
-              <span class="subpage-title" id="subpage-title">职业</span>
+              <span class="subpage-title" id="subpage-title">面板</span>
               <span class="subpage-toolbar-spacer" aria-hidden="true"></span>
             </div>
             <div class="subpage-body" id="subpage-body"></div>
-          </div>
-        </div>
-
-        <!-- 事件弹层（居中） -->
-        <div class="modal" id="event-modal" role="dialog" aria-modal="true" aria-hidden="true">
-          <div class="modal-card">
-            <div class="modal-scene-wrap">
-              <img id="modal-scene" src="assets/tang-scene-city.png" alt="" />
-              <span class="modal-scene-tag" id="modal-scene-tag">长安</span>
-            </div>
-            <div class="modal-inner">
-              <h2 id="modal-title">……</h2>
-              <p class="body" id="modal-body"></p>
-              <div class="choices" id="modal-choices"></div>
-            </div>
           </div>
         </div>
       </section>
