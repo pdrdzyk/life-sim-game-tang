@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>长安岁华 · 唐风人生录</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --shell: #0d0d0f;
+      --shell-rim: #2a2a2e;
+      --feed-bg: #ffffff;
+      --ink: #1c1b19;
+      --muted: #6b6560;
+      --accent: #c44536;
+      --dock: #1a2f4a;
+      --dock-light: #2a4a6f;
+      --age-green: #2ecc71;
+      --age-green-dark: #27ae60;
+      --bar-track: #e8e4dc;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #18181b;
+    }
+
+    body {
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0.75rem calc(1rem + var(--safe-bottom));
+    }
+
+    .device {
+      width: 100%;
+      max-width: 390px;
+      height: min(792px, calc(100vh - 2rem));
+      max-height: min(792px, calc(100vh - 2rem));
+      background: var(--shell);
+      border-radius: 42px;
+      padding: 10px;
+      box-shadow: 0 0 0 1px var(--shell-rim), 0 24px 80px rgba(0, 0, 0, 0.55);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .device-notch {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 96px;
+      height: 26px;
+      background: #000;
+      border-radius: 16px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .app {
+      background: #e8e2d9;
+      border-radius: 34px;
+      overflow: hidden;
+      /* 固定高度：不随纪事条数增高，内容在 .life-feed 内滚动 */
+      height: 100%;
+      max-height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .screen.active { display: flex; }
+
+    #screen-play {
+      position: relative;
+    }
+
+    /* —— 开局 —— */
+    #screen-create { overflow-y: auto; }
+    .splash {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+    }
+    .create-body { padding: 1rem 1.1rem 1.25rem; }
+    .create-body h1 {
+      margin: 0 0 0.15rem;
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: 1.75rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .create-body .sub { margin: 0 0 1rem; font-size: 0.78rem; color: var(--muted); }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      background: #fff;
+      margin-bottom: 0.85rem;
+    }
+    button.primary {
+      width: 100%;
+      padding: 0.85rem;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* —— BitLife 式顶栏 —— */
+    .bl-header {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #f5f0e8 0%, #e8e2d9 100%);
+      padding: 2rem 0.75rem 0.5rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .bl-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+    .bl-brand {
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: 1.15rem;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .bl-identity-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+    }
+    .bl-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+    }
+    .bl-id-text { min-width: 0; flex: 1; }
+    .bl-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+    .bl-flag {
+      display: inline-block;
+      font-size: 0.7rem;
+      margin-left: 0.35rem;
+      opacity: 0.85;
+    }
+    .bl-job {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+    .bl-bank {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .bl-bank-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .bl-bank-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--age-green);
+      line-height: 1.1;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+    .bl-bank-unit {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    /* —— 主内容区：纪事 + 底栏（可被子页面覆盖）—— */
+    .play-main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .home-view {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .life-feed-wrap {
+      flex: 1;
+      min-height: 0;
+      background: var(--feed-bg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .life-feed {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.55rem 0.75rem 0.4rem;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      color: #2d2a26;
+    }
+    .feed-line {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #f0ebe4;
+    }
+    .feed-line:last-child { border-bottom: none; }
+    .feed-line .when {
+      font-size: 0.6rem;
+      color: #9a948c;
+      margin-bottom: 0.15rem;
+    }
+    .feed-hint {
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-align: center;
+      padding: 1.25rem 0.5rem;
+      line-height: 1.55;
+    }
+
+    /* —— 中部操作条：职业 · 资产 · 加一岁 · 关系 · 活动 —— */
+    .action-dock {
+      flex-shrink: 0;
+      background: var(--dock);
+      padding: 0.5rem 0.35rem 0.6rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 0.15rem;
+    }
+    .dock-icon-btn {
+      border: none;
+      border-radius: 12px;
+      background: var(--dock-light);
+      color: #c8d8e8;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.3rem 0.15rem;
+      transition: transform 0.1s, background 0.15s;
+      flex: 1;
+      min-width: 0;
+      max-width: 56px;
+      min-height: 54px;
+      gap: 0.2rem;
+    }
+    .dock-icon-btn:active { transform: scale(0.96); }
+    .dock-icon-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .dock-lbl {
+      font-size: 0.52rem;
+      font-weight: 700;
+      color: #9eb8d8;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .age-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 84px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .btn-age {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(180deg, #3ddc82 0%, var(--age-green) 35%, var(--age-green-dark) 100%);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #1e8448, 0 8px 16px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      transition: transform 0.1s, filter 0.15s;
+    }
+    .btn-age:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.3);
+      box-shadow: 0 2px 0 #555;
+    }
+    .btn-age:not(:disabled):active { transform: scale(0.97); }
+    .btn-age .plus {
+      font-size: 1.75rem;
+      font-weight: 300;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .btn-age .age-lbl {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .btn-age-mini {
+      position: absolute;
+      right: -4px;
+      bottom: 4px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--dock);
+      background: #e74c3c;
+      color: #fff;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .btn-age-mini:disabled { opacity: 0.4; pointer-events: none; }
+
+    /* —— 底部四维条 —— */
+    .stat-bars {
+      flex-shrink: 0;
+      background: #f5f0e8;
+      padding: 0.45rem 0.65rem calc(0.5rem + var(--safe-bottom));
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.35rem;
+    }
+    .stat-row:last-child { margin-bottom: 0; }
+    .stat-ico {
+      width: 22px;
+      text-align: center;
+      font-size: 1rem;
+    }
+    .stat-name {
+      width: 2.2rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .stat-track {
+      flex: 1;
+      height: 10px;
+      background: var(--bar-track);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .stat-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.35s ease;
+    }
+    .stat-fill.hp { background: linear-gradient(90deg, #56ccf2, #2d9cdb); }
+    .stat-fill.poetry { background: linear-gradient(90deg, #a855f7, #7c3aed); }
+    .stat-fill.fame { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .stat-fill.wealth { background: linear-gradient(90deg, var(--age-green), #16a085); }
+    .stat-pct {
+      width: 2.4rem;
+      text-align: right;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #444;
+    }
+
+    /* —— 事件弹窗（居中）—— */
+    .modal {
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: 100%;
+      max-width: 340px;
+      max-height: 82vh;
+      overflow-y: auto;
+      background: #fffdf8;
+      border-radius: 18px;
+      padding: 0;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+      animation: modalIn 0.28s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-scene-wrap {
+      position: relative;
+      height: 120px;
+    }
+    .modal-scene-wrap img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    .modal-scene-tag {
+      position: absolute;
+      left: 10px;
+      bottom: 8px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+    }
+    .modal-inner { padding: 0.9rem 1rem 1.1rem; }
+    .modal-inner h2 {
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: 1.4rem;
+      color: var(--accent);
+      margin: 0 0 0.45rem;
+    }
+    .modal-inner .body {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: #3d3a36;
+      margin: 0 0 0.85rem;
+    }
+    .modal-inner .choices { display: flex; flex-direction: column; gap: 0.45rem; }
+    .modal-inner button.choice {
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      padding: 0.7rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid rgba(196, 69, 54, 0.35);
+      background: linear-gradient(180deg, #fff 0%, #faf6ef 100%);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    /* —— 四键子页面（自底部滑入，顶栏保持在外）—— */
+    .subpage-root {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 50;
+      background: #ebe4d7;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+    }
+    .subpage-root.open {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .subpage-toolbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      background: linear-gradient(180deg, #f2ebe0 0%, #ebe4d7 100%);
+      position: relative;
+      min-height: 48px;
+    }
+    .subpage-back {
+      border: none;
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.4rem 0.65rem;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+    .subpage-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 800;
+      font-size: 1rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .subpage-toolbar-spacer {
+      width: 72px;
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+    .subpage-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+    .subpage-placeholder {
+      margin: 0;
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: 2rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+    }
+
+    #screen-end {
+      overflow-y: auto;
+      padding: 2rem 1.25rem 1.5rem;
+      text-align: center;
+      justify-content: center;
+      background: #e8e2d9;
+    }
+    #screen-end .end-portrait {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 1rem;
+      border: 4px solid #fff;
+    }
+    #screen-end h2 {
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: 1.65rem;
+      color: var(--accent);
+    }
+    #screen-end .epitaph { font-size: 0.9rem; line-height: 1.7; color: #3d3a36; }
+    #screen-end .muted { font-size: 0.78rem; color: var(--muted); margin-bottom: 1rem; }
+
+    .fine-print {
+      max-width: 390px;
+      margin: 0.75rem auto 0;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.35);
+      text-align: center;
+      line-height: 1.45;
+      padding: 0 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="device-notch" aria-hidden="true"></div>
+    <div class="app" id="app">
+      <section class="screen active" id="screen-create">
+        <img class="splash" src="assets/tang-scene-city.png" alt="" />
+        <div class="create-body">
+          <h1>长安岁华</h1>
+          <p class="sub">唐风人生录 · 架空故事 · 仅供娱乐</p>
+          <label for="familyName">姓</label>
+          <input type="text" id="familyName" placeholder="如：李" maxlength="4" />
+          <label for="givenName">名</label>
+          <input type="text" id="givenName" placeholder="如：子谦" maxlength="6" />
+          <label for="gender">称谓</label>
+          <select id="gender">
+            <option value="男">男子</option>
+            <option value="女">女子</option>
+          </select>
+          <button type="button" class="primary" id="btn-start">开卷 · 降生</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-play">
+        <header class="bl-header">
+          <div class="bl-title-row">
+            <span class="bl-brand">长安岁华</span>
+          </div>
+          <div class="bl-identity-row">
+            <img class="bl-avatar" id="hdr-avatar" src="assets/tang-portrait-male.png" alt="" />
+            <div class="bl-id-text">
+              <div class="bl-name">
+                <span id="hdr-name">李子谦</span>
+                <span class="bl-flag" title="籍贯">唐</span>
+              </div>
+              <div class="bl-job" id="hdr-status">童蒙之年 · 开元年间</div>
+            </div>
+            <div class="bl-bank">
+              <div class="bl-bank-label">家财</div>
+              <div class="bl-bank-val" id="hdr-wealth">35</div>
+              <div class="bl-bank-unit">贯 · 钱</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="play-main">
+          <div class="home-view" id="home-view">
+            <div class="life-feed-wrap">
+              <div class="life-feed" id="life-feed"></div>
+            </div>
+
+            <div class="action-dock">
+              <button type="button" class="dock-icon-btn" id="btn-career" title="职业">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2M12 11v4"/></svg>
+                <span class="dock-lbl">职业</span>
+              </button>
+              <button type="button" class="dock-icon-btn" id="btn-assets" title="资产">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M16 14h2"/></svg>
+                <span class="dock-lbl">资产</span>
+              </button>
+              <div class="age-wrap">
+                <button type="button" class="btn-age" id="btn-next-year" aria-label="加一岁">
+                  <span class="plus">+</span>
+                  <span class="age-lbl">加一岁</span>
+                </button>
+                <button type="button" class="btn-age-mini" id="btn-undo-year" title="本版未实现回溯" disabled>−</button>
+              </div>
+              <button type="button" class="dock-icon-btn" id="btn-relationships" title="关系">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                <span class="dock-lbl">关系</span>
+              </button>
+              <button type="button" class="dock-icon-btn" id="btn-activities" title="活动">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                <span class="dock-lbl">活动</span>
+              </button>
+            </div>
+
+            <div class="stat-bars" id="stat-bars"></div>
+          </div>
+
+          <div class="subpage-root" id="subpage-root" aria-hidden="true">
+            <div class="subpage-toolbar">
+              <button type="button" class="subpage-back" id="subpage-back">← 返回</button>
+              <span class="subpage-title" id="subpage-title">职业</span>
+              <span class="subpage-toolbar-spacer" aria-hidden="true"></span>
+            </div>
+            <div class="subpage-body">
+              <p class="subpage-placeholder" id="subpage-placeholder">未完待续</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 事件弹层（居中） -->
+        <div class="modal" id="event-modal" role="dialog" aria-modal="true" aria-hidden="true">
+          <div class="modal-card">
+            <div class="modal-scene-wrap">
+              <img id="modal-scene" src="assets/tang-scene-city.png" alt="" />
+              <span class="modal-scene-tag" id="modal-scene-tag">长安</span>
+            </div>
+            <div class="modal-inner">
+              <h2 id="modal-title">……</h2>
+              <p class="body" id="modal-body"></p>
+              <div class="choices" id="modal-choices"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-end">
+        <img class="end-portrait" id="end-portrait" src="" alt="" hidden />
+        <h2 id="end-title">一世终章</h2>
+        <p class="epitaph" id="end-text"></p>
+        <p class="muted" id="end-stats"></p>
+        <button type="button" class="primary" id="btn-restart">再续一世</button>
+      </section>
+    </div>
+  </div>
+  <p class="fine-print">架空叙事小游戏；画面为 AI 生成素材；玩法界面参考常见人生模拟类应用布局，仅为交互学习。</p>
+
+  <script>
+    (function () {
+      const ERA_START_YEAR = 713;
+      const ERA_NAME = "开元";
+
+      const SCENES = {
+        home: "assets/tang-scene-home.png",
+        city: "assets/tang-scene-city.png",
+        wild: "assets/tang-scene-wild.png",
+      };
+      const SCENE_LABEL = { home: "庭园", city: "长安", wild: "山河" };
+
+      const PORTRAIT = { 男: "assets/tang-portrait-male.png", 女: "assets/tang-portrait-female.png" };
+
+      const STAT_KEYS = ["体魄", "诗书", "名望", "家财"];
+      const STAT_META = {
+        体魄: { emoji: "💪", cls: "hp", label: "体魄" },
+        诗书: { emoji: "📜", cls: "poetry", label: "诗书" },
+        名望: { emoji: "🏮", cls: "fame", label: "名望" },
+        家财: { emoji: "💰", cls: "wealth", label: "家财" },
+      };
+
+      const STAT_MIN = 0;
+      const STAT_MAX = 100;
+      const START_STATS = { 体魄: 50, 诗书: 45, 名望: 20, 家财: 35 };
+
+      const screens = {
+        create: document.getElementById("screen-create"),
+        play: document.getElementById("screen-play"),
+        end: document.getElementById("screen-end"),
+      };
+
+      let gameState = null;
+      let modalOpen = false;
+      let pendingEvent = null;
+      let subpageOpen = false;
+
+      function showScreen(name) {
+        Object.values(screens).forEach(function (el) { el.classList.remove("active"); });
+        screens[name].classList.add("active");
+      }
+
+      function clampStat(n) {
+        return Math.max(STAT_MIN, Math.min(STAT_MAX, Math.round(n)));
+      }
+
+      function getStatusLine(state) {
+        const a = state.age;
+        const s = state.stats;
+        let phase = "布衣";
+        if (a < 7) phase = "童蒙之年";
+        else if (a < 15) phase = "志学之年";
+        else if (a < 30) phase = s.诗书 >= 55 ? "赴举之士" : "游学之士";
+        else if (a < 55) phase = s.名望 >= 50 ? "乡里有声" : "风尘仆仆";
+        else phase = "桑榆晚景";
+        return phase + " · 今岁 " + a + " 龄 · 公元 " + (ERA_START_YEAR + a) + " 年";
+      }
+
+      function pickEvent(events, age) {
+        const pool = events.filter(function (e) {
+          return age >= e.minAge && age <= e.maxAge;
+        });
+        if (!pool.length) return null;
+        let total = 0;
+        pool.forEach(function (e) { total += e.weight || 1; });
+        let r = Math.random() * total;
+        for (let i = 0; i < pool.length; i++) {
+          r -= pool[i].weight || 1;
+          if (r <= 0) return pool[i];
+        }
+        return pool[pool.length - 1];
+      }
+
+      const EVENTS = [
+        { minAge: 0, maxAge: 6, weight: 2, bg: "home", title: "庭中竹马", text: "你还年幼，庭前杏花初开。邻童邀你追逐嬉戏，先生却嘱你习字。父亲抚须而立，似在等你一句说法。", choices: [
+          { label: "随顽童嬉闹半日，归来再临帖。", delta: { 体魄: 6, 诗书: -3 }, note: "筋骨结实，笔墨稍疏。" },
+          { label: "婉拒嬉戏，整日摹写《千字文》。", delta: { 诗书: 8, 体魄: -4 }, note: "字渐端正，久坐体倦。" },
+          { label: "提议对弈戏棋，胜负次之，权当练心。", delta: { 诗书: 3, 名望: 2 }, note: "幼名有“早慧”之评。" },
+        ]},
+        { minAge: 7, maxAge: 14, weight: 2, bg: "city", title: "坊间说书", text: "长安西市人声鼎沸，说书人拍醒木讲古。你挤在人群里听得入神，忽闻身后有人询价你的课业卷子可曾做完。", choices: [
+          { label: "再听一回《游侠列传》，回家连夜补功课。", delta: { 名望: 4, 诗书: 5, 体魄: -2 }, note: "胸中热血与墨香并存。" },
+          { label: "立刻折返，闭门读书。", delta: { 诗书: 6, 名望: -2 }, note: "邻里说你少年老成。" },
+          { label: "以几枚铜钱换一句说书人的“续貂”，回来作文引用。", delta: { 家财: -4, 诗书: 4, 名望: 3 }, note: "文有奇气，囊中金少。" },
+        ]},
+        { minAge: 7, maxAge: 16, weight: 1, bg: "home", title: "疫疠流言", text: "坊间纷传城外有疫，母亲令你勿再往学馆。馆长遣人送来经卷，称可自行抄诵。亲戚亦有劝你暂避乡野者。", choices: [
+          { label: "遵母命居家抄书，并以粥饭周济邻家童子。", delta: { 德行: 5, 诗书: 4, 家财: -6 }, note: "乡里称你仁厚。" },
+          { label: "随亲眷远走乡墅，暂避风头。", delta: { 体魄: 4, 名望: -3, 家财: -8 }, note: "避祸得安，声名略损。" },
+          { label: "不信流言，仍赴学馆，与同窗论辨疫理之虚实。", delta: { 名望: 5, 体魄: -6, 诗书: 3 }, note: "意气昂扬，亦可伤身。" },
+        ]},
+        { minAge: 15, maxAge: 24, weight: 2, bg: "city", title: "曲江流饮", text: "春日曲江，士子佩茱萸、马蹄轻。旧识请你入诗社斗篇，又有人邀你同观胡旋舞，囊中盘缠有限。", choices: [
+          { label: "赴诗社，酌酒成诗一首。", delta: { 名望: 8, 诗书: 6, 家财: -5 }, note: "清词传闻于座师耳畔。" },
+          { label: "观舞为乐，不作诗，只与胡商闲话丝路。", delta: { 体魄: 3, 名望: 3, 诗书: -2 }, note: "眼界日阔，诗名未显。" },
+          { label: "婉谢两处，返家温习律赋。", delta: { 诗书: 10, 名望: -4 }, note: "科考基渐牢，风流减三分。" },
+        ]},
+        { minAge: 15, maxAge: 35, weight: 1, bg: "city", title: "投卷干谒", text: "科举将近，友人云某公喜清谈，可托门生投卷。另有一途：捐资修寺以求方丈一笔荐书。你当如何？", choices: [
+          { label: "亲撰长卷，躬身谒见，陈己志于阶前。", delta: { 名望: 6, 诗书: 4, 家财: -3 }, note: "气节为时人所称。" },
+          { label: "随俗修寺，以财帛换声名一线。", delta: { 家财: -12, 名望: 5, 诗书: -3 }, note: "捷径多谤，亦非无验。" },
+          { label: "皆辞，闭户三年，只与古籍对晤。", delta: { 诗书: 12, 名望: -5 }, note: "大器晚成之象。" },
+        ]},
+        { minAge: 25, maxAge: 50, weight: 2, bg: "city", title: "县务繁剧", text: "若你曾入仕途，案牍如山；若仍为布衣，则乡里推你评理。田亩争水、商贾债契，俱压在这一纸判词上。", choices: [
+          { label: "详查律例，迟一二日再断，务求持平。", delta: { 名望: 8, 诗书: 2, 家财: 2 }, note: "百姓口碑载道。" },
+          { label: "当场折中，各打五十大板，早结案。", delta: { 名望: -3, 家财: 6 }, note: "事息而怨未尽。" },
+          { label: "引荐德高望重之长者共审，己退一步。", delta: { 名望: 6, 德行: 4 }, note: "谦抑之美。" },
+        ]},
+        { minAge: 25, maxAge: 55, weight: 1, bg: "city", title: "胡商宝货", text: "波斯商队停驻坊市，琉璃与香料耀目。有人劝你合资贩往岭南；亦有人警你市估苛杂、恐有亏折。", choices: [
+          { label: "倾部分家财合资，立契分明。", delta: { 家财: 18, 名望: 4, 体魄: -3 }, note: "舟车劳顿，利亦随风险。" },
+          { label: "仅购少许玩好自藏，不涉大宗。", delta: { 家财: -8, 名望: 2, 诗书: 2 }, note: "雅玩怡情。" },
+          { label: "一概谢绝，谓志在简素。", delta: { 名望: 5, 家财: 2 }, note: "清流自许。" },
+        ]},
+        { minAge: 40, maxAge: 70, weight: 2, bg: "wild", title: "渭水秋风", text: "鬓边见霜。旧友或已显达，或埋骨青山。书斋案上，尚有未完稿一卷，窗外梧桐叶落如雨。", choices: [
+          { label: "焚膏继晷，务求成书，以贻后人。", delta: { 诗书: 10, 体魄: -8, 名望: 5 }, note: "著述心热，形体渐亏。" },
+          { label: "散尽部分藏书，设义学教邻里童子。", delta: { 德行: 10, 家财: -10, 名望: 8 }, note: "薪火在人间。" },
+          { label: "游山访寺，与僧人偶论空理，任岁月自流。", delta: { 体魄: 6, 名望: 3, 诗书: 2 }, note: "晚景清旷。" },
+        ]},
+        { minAge: 65, maxAge: 95, weight: 2, bg: "home", title: "暮山钟远", text: "齿落发白，晨起听远处山寺钟声。儿孙问：可还有未了心愿？", choices: [
+          { label: "嘱家人缮写家训一封，不必张扬。", delta: { 名望: 4, 诗书: 3 }, note: "家风悄悄传。" },
+          { label: "笑曰无事，只求冬日晒太阳一晌。", delta: { 体魄: 4, 家财: -2 }, note: "知足者寿。" },
+          { label: "以平生积余助修桥一座，不留姓名。", delta: { 德行: 8, 家财: -15, 名望: 6 }, note: "阴德在人耳目之外。" },
+        ]},
+        { minAge: 5, maxAge: 80, weight: 1, bg: "wild", title: "边塞诗笺", text: "驿道上传唱新诗，或写陇右孤烟，或写江南春雨。你可寄和一首，亦可沉默如常。", choices: [
+          { label: "的和投递诗肆，换少许润笔。", delta: { 诗书: 5, 家财: 4, 名望: 3 }, note: "声中渐有人知。" },
+          { label: "只抄录藏之秘箧，不示外人。", delta: { 诗书: 6, 名望: -2 }, note: "孤芳自赏。" },
+        ]},
+      ];
+
+      function normalizeDelta(delta) {
+        const out = {};
+        Object.keys(delta || {}).forEach(function (k) {
+          if (k === "德行") {
+            out._德行 = (out._德行 || 0) + delta[k];
+            return;
+          }
+          out[k] = delta[k];
+        });
+        return out;
+      }
+
+      function applyDelta(state, delta) {
+        const d = normalizeDelta(delta);
+        STAT_KEYS.forEach(function (k) {
+          if (d[k] != null) state.stats[k] = clampStat(state.stats[k] + d[k]);
+        });
+        if (d._德行) state.virtue = (state.virtue || 0) + d._德行;
+      }
+
+      function renderHeader(state) {
+        document.getElementById("hdr-name").textContent = state.familyName + state.givenName;
+        document.getElementById("hdr-avatar").src = PORTRAIT[state.gender] || PORTRAIT["男"];
+        document.getElementById("hdr-wealth").textContent = String(state.stats.家财);
+        document.getElementById("hdr-status").textContent = getStatusLine(state);
+      }
+
+      function renderStatBars(state) {
+        const host = document.getElementById("stat-bars");
+        host.innerHTML = STAT_KEYS.map(function (k) {
+          const v = state.stats[k];
+          const meta = STAT_META[k];
+          return (
+            '<div class="stat-row">' +
+              '<span class="stat-ico">' + meta.emoji + "</span>" +
+              '<span class="stat-name">' + meta.label + '</span>' +
+              '<div class="stat-track"><div class="stat-fill ' + meta.cls + '" style="width:' + v + '%"></div></div>' +
+              '<span class="stat-pct">' + v + "%</span>" +
+            "</div>"
+          );
+        }).join("");
+      }
+
+      function prependFeed(state, htmlLine) {
+        state.feed = state.feed || [];
+        state.feed.unshift({ html: htmlLine });
+        renderFeed(state);
+      }
+
+      function renderFeed(state) {
+        const el = document.getElementById("life-feed");
+        if (!state.feed || !state.feed.length) {
+          el.innerHTML = '<div class="feed-hint">点击下方绿色「加一岁」推进光阴。<br />每一年会弹出随机际遇供你选择。</div>';
+          return;
+        }
+        el.innerHTML = state.feed.map(function (row) {
+          return '<div class="feed-line">' + row.html + "</div>";
+        }).join("");
+      }
+
+      function openEventModal(evt) {
+        pendingEvent = evt;
+        modalOpen = true;
+        const bg = evt.bg && SCENES[evt.bg] ? evt.bg : "city";
+        document.getElementById("modal-scene").src = SCENES[bg];
+        document.getElementById("modal-scene-tag").textContent = SCENE_LABEL[bg] || "长安";
+        document.getElementById("modal-title").textContent = evt.title;
+        document.getElementById("modal-body").textContent = evt.text;
+        const box = document.getElementById("modal-choices");
+        box.innerHTML = "";
+        evt.choices.forEach(function (c, i) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "choice";
+          btn.textContent = (i + 1) + "）" + c.label;
+          btn.addEventListener("click", function () {
+            resolveEventChoice(gameState, evt, c);
+          });
+          box.appendChild(btn);
+        });
+        const m = document.getElementById("event-modal");
+        m.classList.add("open");
+        m.setAttribute("aria-hidden", "false");
+        setAgeButtonState();
+      }
+
+      function setAgeButtonState() {
+        const btn = document.getElementById("btn-next-year");
+        btn.disabled = modalOpen || subpageOpen;
+      }
+
+      function closeEventModal() {
+        modalOpen = false;
+        pendingEvent = null;
+        const m = document.getElementById("event-modal");
+        m.classList.remove("open");
+        m.setAttribute("aria-hidden", "true");
+        setAgeButtonState();
+      }
+
+      function resolveEventChoice(state, evt, choice) {
+        applyDelta(state, choice.delta);
+        const calYear = ERA_START_YEAR + state.age;
+        const when = ERA_NAME + " " + (calYear - ERA_START_YEAR) + " 年（" + state.age + " 岁）";
+        const line =
+          '<div class="when">' + when + "</div>" +
+          "「" + evt.title + "」你" + choice.label.replace(/。$/, "") + "。" + choice.note;
+        prependFeed(state, line);
+        state.journal = state.journal || [];
+        state.journal.push({ age: state.age, text: choice.note });
+        closeEventModal();
+        renderHeader(state);
+        renderStatBars(state);
+        const d = checkDeath(state);
+        if (d) endGame(state, d);
+      }
+
+      function checkDeath(state) {
+        if (state.stats.体魄 <= 0) return "病重不治，药石无功。";
+        if (state.stats.家财 <= 0 && state.age > 20) return "家业荡然，茕茕度日，终难支骸。";
+        if (state.age >= state.lifespanCap) return "天年已尽，如秋叶之静美。";
+        return null;
+      }
+
+      function endGame(state, reason) {
+        const v = state.virtue || 0;
+        const s = state.stats;
+        let tag = "平生倜傥";
+        if (v >= 15 && s.名望 >= 50) tag = "仁厚有声";
+        else if (s.诗书 >= 70) tag = "文心照耀";
+        else if (s.家财 >= 70) tag = "薄有积藏";
+        else if (s.名望 >= 60) tag = "乡国所推";
+        document.getElementById("end-title").textContent = "一世已矣";
+        document.getElementById("end-text").textContent =
+          reason + " —— 时人谓其「" + tag + "」。浮生若梦，惟余纸上一行名姓。";
+        document.getElementById("end-stats").textContent =
+          "终年" + state.age + "岁 · 诗书" + s.诗书 + " · 名望" + s.名望 + " · 家财" + s.家财 + " · 体魄" + s.体魄;
+        const endImg = document.getElementById("end-portrait");
+        endImg.src = PORTRAIT[state.gender] || PORTRAIT["男"];
+        endImg.hidden = false;
+        gameState = null;
+        closeEventModal();
+        closeSubpage();
+        showScreen("end");
+      }
+
+      function openSubpage(title) {
+        if (!gameState) return;
+        document.getElementById("subpage-title").textContent = title;
+        document.getElementById("subpage-placeholder").textContent = "未完待续";
+        document.getElementById("subpage-root").classList.add("open");
+        document.getElementById("subpage-root").setAttribute("aria-hidden", "false");
+        subpageOpen = true;
+        setAgeButtonState();
+      }
+
+      function closeSubpage() {
+        document.getElementById("subpage-root").classList.remove("open");
+        document.getElementById("subpage-root").setAttribute("aria-hidden", "true");
+        subpageOpen = false;
+        setAgeButtonState();
+      }
+
+      function tryAdvanceYear() {
+        if (!gameState || modalOpen || subpageOpen) return;
+        const state = gameState;
+        state.age += 1;
+        const death = checkDeath(state);
+        if (death) {
+          renderHeader(state);
+          renderStatBars(state);
+          endGame(state, death);
+          return;
+        }
+        const evt = pickEvent(EVENTS, state.age);
+        if (!evt) {
+          endGame(state, "岁月潜移，叙事至此暂歇。");
+          return;
+        }
+        renderHeader(state);
+        renderStatBars(state);
+        openEventModal(evt);
+      }
+
+      function initPlay(state) {
+        state.feed = [];
+        prependFeed(state,
+          '<div class="when">' + ERA_NAME + "元年（0 岁）</div>你降生于长安一带，啼声清亮。此后每一年，可点「加一岁」推进人生。"
+        );
+        renderHeader(state);
+        renderStatBars(state);
+        setAgeButtonState();
+      }
+
+      document.getElementById("btn-next-year").addEventListener("click", tryAdvanceYear);
+      document.getElementById("subpage-back").addEventListener("click", closeSubpage);
+
+      document.getElementById("btn-career").addEventListener("click", function () {
+        openSubpage("职业");
+      });
+      document.getElementById("btn-assets").addEventListener("click", function () {
+        openSubpage("资产");
+      });
+      document.getElementById("btn-relationships").addEventListener("click", function () {
+        openSubpage("关系");
+      });
+      document.getElementById("btn-activities").addEventListener("click", function () {
+        openSubpage("活动");
+      });
+
+      function startGame() {
+        let fn = document.getElementById("familyName").value.trim() || "李";
+        let gn = document.getElementById("givenName").value.trim() || "子谦";
+        const gender = document.getElementById("gender").value;
+        gameState = {
+          familyName: fn.slice(0, 2),
+          givenName: gn.slice(0, 4),
+          gender: gender,
+          age: 0,
+          stats: Object.assign({}, START_STATS),
+          virtue: 0,
+          lifespanCap: 55 + Math.floor(Math.random() * 31),
+          journal: [],
+          feed: [],
+        };
+        showScreen("play");
+        initPlay(gameState);
+      }
+
+      document.getElementById("btn-start").addEventListener("click", startGame);
+      document.getElementById("btn-restart").addEventListener("click", function () {
+        document.getElementById("end-portrait").hidden = true;
+        showScreen("create");
+      });
+    })();
+  </script>
+</body>
+</html>
