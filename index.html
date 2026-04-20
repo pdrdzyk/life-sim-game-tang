@@ -669,6 +669,43 @@
       line-height: 1.55;
       color: #3d3a36;
     }
+    .kin-card {
+      padding: 0.5rem 0.15rem 0.55rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      margin-bottom: 0.3rem;
+    }
+    .kin-card:last-child { margin-bottom: 0; }
+    .kin-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+    }
+    .kin-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #f3ebe0;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .kin-meta { min-width: 0; flex: 1; }
+    .kin-name { font-weight: 700; font-size: 0.85rem; }
+    .kin-status { color: var(--muted); font-size: 0.74rem; margin-top: 0.05rem; }
+    .kin-actions {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+    }
+    .kin-btn {
+      flex: 1;
+      font-size: 0.74rem;
+      text-align: center;
+      padding: 0.35rem 0.25rem;
+    }
     .detail-row {
       display: flex;
       justify-content: space-between;

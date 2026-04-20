@@ -326,40 +326,6 @@
     state.yearActionUsage.used[key] = true;
   }
 
-  function handleRelationAction(state, actionKey) {
-    if (isYearActionUsed(state, actionKey)) return;
-
-    var line = "";
-    if (actionKey === "greetParents") {
-      const plus = 3 + randInt(0, 2);
-      applyDelta(state, { 父亲: plus, 母亲: plus, 心性: 1 });
-      line = "晨昏定省，你向双亲问安。父母神色稍和，家中气氛也更安稳。";
-    } else if (actionKey === "spendWithSiblings") {
-      applyDelta(state, { 手足: 5, 心性: 2, 体魄: 1 });
-      line = "你与手足同游坊巷、闲话家常。争执少了，情分更近。";
-    } else if (actionKey === "familyDuty") {
-      // 同一按钮内做二选一，形成轻度风险/回报。
-      if (Math.random() < 0.5) {
-        applyDelta(state, { 银钱: 5, 父亲: -2, 母亲: -1, 心性: -1 });
-        line = "你开口向家里索要资助，银钱宽裕了些，但长辈脸色不太好看。";
-      } else {
-        applyDelta(state, { 银钱: 3, 父亲: 3, 母亲: 3, 心性: 2, 体魄: -1 });
-        line = "你替家里跑腿办事、对账收支，虽有些劳累，却更得长辈信任。";
-      }
-    } else {
-      return;
-    }
-
-    markYearActionUsed(state, actionKey);
-
-    const when = "公元 " + (ERA_START + state.character.age) + " 年（" + state.character.age + " 岁）";
-    prependFeed(state, '<div class="when">' + when + "</div>" + line);
-    renderHeader(state);
-    renderStatBars(state);
-    // 保持在关系页实时刷新按钮状态
-    openSubpage("relations");
-  }
-
   function applyDelta(state, delta) {
     const d = normalizeDelta(delta);
     const c = state.character;
@@ -595,17 +561,17 @@
   function openSubpage(id) {
     if (!gameState) return;
     const titles = {
-      family: "家庭",
+      family: "亲族关系",
       study: "学业与技艺",
       career: "仕途与营生",
-      relations: "关系",
+      relations: "亲族关系",
       assets: "资产",
     };
     document.getElementById("subpage-title").textContent = titles[id] || "";
     const body = document.getElementById("subpage-body");
     body.innerHTML = "";
     body.classList.remove("subpage-body-center");
-    if (id === "family") body.innerHTML = renderFamilyHtml(gameState);
+    if (id === "family") body.innerHTML = renderRelationsHtml(gameState);
     else if (id === "study") body.innerHTML = renderStudyHtml(gameState);
     else if (id === "career") body.innerHTML = renderCareerHtml(gameState);
     else if (id === "relations") body.innerHTML = renderRelationsHtml(gameState);
@@ -626,40 +592,105 @@
   }
 
   function renderFamilyHtml(state) {
+    return renderRelationsHtml(state);
+  }
+
+  function buildKinList(state) {
     const f = state.family;
-    let html = '<div class="detail-sheet">';
-    html +=
-      '<div class="detail-row"><span class="detail-k">' +
-      f.father.title +
-      "（" +
-      f.father.callName +
-      '）</span><span class="detail-v">' +
-      f.father.status +
-      "</span></div>";
-    html += '<div class="detail-sub">亲睦 ' + affinityBar(f.father.affinity) + "</div>";
-    html +=
-      '<div class="detail-row"><span class="detail-k">' +
-      f.mother.title +
-      "（" +
-      f.mother.callName +
-      '）</span><span class="detail-v">' +
-      f.mother.status +
-      "</span></div>";
-    html += '<div class="detail-sub">亲睦 ' + affinityBar(f.mother.affinity) + "</div>";
+    const out = [
+      {
+        id: "father",
+        icon: "👨",
+        label: f.father.title + "（" + f.father.callName + "）",
+        status: f.father.status,
+        affinity: f.father.affinity,
+      },
+      {
+        id: "mother",
+        icon: "👩",
+        label: f.mother.title + "（" + f.mother.callName + "）",
+        status: f.mother.status,
+        affinity: f.mother.affinity,
+      },
+    ];
     f.siblings.forEach(function (s, i) {
-      html +=
-        '<div class="detail-row"><span class="detail-k">' +
-        s.title +
-        " " +
-        s.name +
-        '</span><span class="detail-v">' +
-        s.status +
-        "</span></div>";
+      out.push({
+        id: "sibling_" + i,
+        icon: "🧒",
+        label: s.title + " " + s.name,
+        status: s.status,
+        affinity: f.siblingAffinity,
+      });
     });
-    html +=
-      '<div class="detail-sub">手足情谊 ' + affinityBar(f.siblingAffinity) + "（合户手足）</div>";
-    html += "</div>";
-    return html;
+    return out;
+  }
+
+  function renderKinActions(state, memberId) {
+    var k1 = "chat_" + memberId;
+    var k2 = "support_" + memberId;
+    var canChat = !isYearActionUsed(state, k1);
+    var canSupport = !isYearActionUsed(state, k2);
+    return (
+      '<div class="kin-actions">' +
+      '<button type="button" class="subpage-back kin-btn" data-kin-member="' +
+      memberId +
+      '" data-kin-act="chat" ' +
+      (canChat ? "" : "disabled") +
+      ">闲聊" +
+      (canChat ? "" : "（本年已做）") +
+      "</button>" +
+      '<button type="button" class="subpage-back kin-btn" data-kin-member="' +
+      memberId +
+      '" data-kin-act="support" ' +
+      (canSupport ? "" : "disabled") +
+      ">求助/帮忙" +
+      (canSupport ? "" : "（本年已做）") +
+      "</button>" +
+      "</div>"
+    );
+  }
+
+  function applyKinAffinity(state, memberId, delta) {
+    if (memberId === "father") {
+      applyDelta(state, { 父亲: delta });
+      return;
+    }
+    if (memberId === "mother") {
+      applyDelta(state, { 母亲: delta });
+      return;
+    }
+    applyDelta(state, { 手足: delta });
+  }
+
+  function handleKinAction(state, memberId, act) {
+    var usageKey = act + "_" + memberId;
+    if (isYearActionUsed(state, usageKey)) return;
+
+    var line = "";
+    if (act === "chat") {
+      applyKinAffinity(state, memberId, 4);
+      applyDelta(state, { 心性: 2 });
+      line = "你与亲人谈了一会近况，彼此心气都顺了些。";
+    } else if (act === "support") {
+      if (Math.random() < 0.5) {
+        applyDelta(state, { 银钱: 4 });
+        applyKinAffinity(state, memberId, -2);
+        line = "你开口求助，得了些银钱，但对方多少有些不悦。";
+      } else {
+        applyDelta(state, { 银钱: 2, 声望: 2, 体魄: -1 });
+        applyKinAffinity(state, memberId, 3);
+        line = "你主动帮忙办事，虽有些劳累，却更得亲人信任。";
+      }
+    } else {
+      return;
+    }
+
+    markYearActionUsed(state, usageKey);
+    const when = "公元 " + (ERA_START + state.character.age) + " 年（" + state.character.age + " 岁）";
+    prependFeed(state, '<div class="when">' + when + "</div>" + line);
+    renderHeader(state);
+    renderStatBars(state);
+    openSubpage("relations");
   }
 
   function renderStudyHtml(state) {
@@ -694,33 +725,34 @@
   }
 
   function renderRelationsHtml(state) {
-    var canGreet = !isYearActionUsed(state, "greetParents");
-    var canSiblings = !isYearActionUsed(state, "spendWithSiblings");
-    var canFamilyDuty = !isYearActionUsed(state, "familyDuty");
-    return (
-      '<div class="detail-sheet prose-block">' +
-      "<p>亲族详列见「家庭」。这一版先开放三项日常互动，每项每年可做一次。</p>" +
-      '<div class="detail-row"><span class="detail-k">问候父母</span><span class="detail-v">' +
-      (canGreet ? "可进行" : "本年已做") +
-      "</span></div>" +
-      '<button type="button" class="subpage-back" data-rel-action="greetParents" ' +
-      (canGreet ? "" : "disabled") +
-      '>问候父母</button>' +
-      '<div class="detail-row"><span class="detail-k">与手足相处</span><span class="detail-v">' +
-      (canSiblings ? "可进行" : "本年已做") +
-      "</span></div>" +
-      '<button type="button" class="subpage-back" data-rel-action="spendWithSiblings" ' +
-      (canSiblings ? "" : "disabled") +
-      '>与手足相处</button>' +
-      '<div class="detail-row"><span class="detail-k">索要资助 / 帮家里做事</span><span class="detail-v">' +
-      (canFamilyDuty ? "可进行" : "本年已做") +
-      "</span></div>" +
-      '<button type="button" class="subpage-back" data-rel-action="familyDuty" ' +
-      (canFamilyDuty ? "" : "disabled") +
-      '>索要资助 / 帮家里做事</button>' +
-      '<p class="muted">每次互动都会立即影响好感、家境或个人状态。</p>' +
-      "</div>"
-    );
+    var kin = buildKinList(state);
+    var html = '<div class="detail-sheet prose-block">';
+    html += "<p>亲族与关系已合并在此。点击成员下方动作即可互动，每个动作每年限一次。</p>";
+    kin.forEach(function (m) {
+      html +=
+        '<div class="kin-card">' +
+        '<div class="kin-head">' +
+        '<div class="kin-avatar">' +
+        m.icon +
+        "</div>" +
+        '<div class="kin-meta">' +
+        '<div class="kin-name">' +
+        m.label +
+        "</div>" +
+        '<div class="kin-status">' +
+        m.status +
+        "</div>" +
+        '<div class="detail-sub">亲睦 ' +
+        affinityBar(m.affinity) +
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        renderKinActions(state, m.id) +
+        "</div>";
+    });
+    html += '<p class="muted">提示：想走“家族线”就多互动，亲缘会更稳，关键年份更容易拿到支持。</p>';
+    html += "</div>";
+    return html;
   }
 
   function renderAssetsHtml(state) {
@@ -824,9 +856,10 @@
   document.getElementById("subpage-body").addEventListener("click", function (ev) {
     var target = ev.target;
     if (!target || !target.dataset) return;
-    var action = target.dataset.relAction;
-    if (!action || !gameState) return;
-    handleRelationAction(gameState, action);
+    var kinAct = target.dataset.kinAct;
+    var kinMember = target.dataset.kinMember;
+    if (!kinAct || !kinMember || !gameState) return;
+    handleKinAction(gameState, kinMember, kinAct);
   });
 
   document.getElementById("btn-family").addEventListener("click", function () {
