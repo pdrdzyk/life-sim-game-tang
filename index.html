@@ -706,6 +706,52 @@
       text-align: center;
       padding: 0.35rem 0.25rem;
     }
+    .kin-list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+      font-family: inherit;
+    }
+    .kin-arrow {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #7c756d;
+      padding-right: 0.15rem;
+      flex-shrink: 0;
+    }
+    .kin-detail-actions {
+      margin-top: 0.45rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      padding-top: 0.35rem;
+    }
+    .kin-detail-action {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
+      background: #f8f4ec;
+      color: #3d3a36;
+      padding: 0.45rem 0.55rem;
+      margin-bottom: 0.32rem;
+      font-family: inherit;
+      font-size: 0.78rem;
+      cursor: default;
+    }
+    .kin-detail-action small {
+      color: var(--muted);
+      font-size: 0.68rem;
+    }
     .detail-row {
       display: flex;
       justify-content: space-between;
@@ -845,7 +891,6 @@
                 <button type="button" class="btn-age-wide" id="btn-next-year">加一岁</button>
               </div>
               <div class="dock-grid">
-                <button type="button" class="dock-grid-btn" id="btn-family">家庭</button>
                 <button type="button" class="dock-grid-btn" id="btn-study">学业</button>
                 <button type="button" class="dock-grid-btn" id="btn-career">仕途</button>
                 <button type="button" class="dock-grid-btn" id="btn-relations">关系</button>

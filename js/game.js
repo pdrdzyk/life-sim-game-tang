@@ -66,6 +66,7 @@
   let gameState = null;
   let modalOpen = false;
   let subpageOpen = false;
+  let relationFocusMember = null;
 
   function randInt(a, b) {
     return a + Math.floor(Math.random() * (b - a + 1));
@@ -310,22 +311,6 @@
     return d;
   }
 
-  function ensureYearActionUsage(state) {
-    if (!state.yearActionUsage || state.yearActionUsage.age !== state.character.age) {
-      state.yearActionUsage = { age: state.character.age, used: {} };
-    }
-  }
-
-  function isYearActionUsed(state, key) {
-    ensureYearActionUsage(state);
-    return !!state.yearActionUsage.used[key];
-  }
-
-  function markYearActionUsed(state, key) {
-    ensureYearActionUsage(state);
-    state.yearActionUsage.used[key] = true;
-  }
-
   function applyDelta(state, delta) {
     const d = normalizeDelta(delta);
     const c = state.character;
@@ -561,7 +546,6 @@
   function openSubpage(id) {
     if (!gameState) return;
     const titles = {
-      family: "亲族关系",
       study: "学业与技艺",
       career: "仕途与营生",
       relations: "亲族关系",
@@ -571,10 +555,11 @@
     const body = document.getElementById("subpage-body");
     body.innerHTML = "";
     body.classList.remove("subpage-body-center");
-    if (id === "family") body.innerHTML = renderRelationsHtml(gameState);
-    else if (id === "study") body.innerHTML = renderStudyHtml(gameState);
+    if (id === "relations") {
+      relationFocusMember = null;
+      body.innerHTML = renderRelationsHtml(gameState);
+    } else if (id === "study") body.innerHTML = renderStudyHtml(gameState);
     else if (id === "career") body.innerHTML = renderCareerHtml(gameState);
-    else if (id === "relations") body.innerHTML = renderRelationsHtml(gameState);
     else if (id === "assets") body.innerHTML = renderAssetsHtml(gameState);
     document.getElementById("subpage-root").classList.add("open");
     document.getElementById("subpage-root").setAttribute("aria-hidden", "false");
@@ -589,10 +574,6 @@
       pct +
       "</span>"
     );
-  }
-
-  function renderFamilyHtml(state) {
-    return renderRelationsHtml(state);
   }
 
   function buildKinList(state) {
@@ -625,72 +606,39 @@
     return out;
   }
 
-  function renderKinActions(state, memberId) {
-    var k1 = "chat_" + memberId;
-    var k2 = "support_" + memberId;
-    var canChat = !isYearActionUsed(state, k1);
-    var canSupport = !isYearActionUsed(state, k2);
+  function renderRelationActionPlaceholders() {
+    const actions = ["问候", "闲聊", "称赞", "赠礼", "求助", "资助对方", "争执"];
     return (
-      '<div class="kin-actions">' +
-      '<button type="button" class="subpage-back kin-btn" data-kin-member="' +
-      memberId +
-      '" data-kin-act="chat" ' +
-      (canChat ? "" : "disabled") +
-      ">闲聊" +
-      (canChat ? "" : "（本年已做）") +
-      "</button>" +
-      '<button type="button" class="subpage-back kin-btn" data-kin-member="' +
-      memberId +
-      '" data-kin-act="support" ' +
-      (canSupport ? "" : "disabled") +
-      ">求助/帮忙" +
-      (canSupport ? "" : "（本年已做）") +
-      "</button>" +
+      '<div class="kin-detail-actions">' +
+      actions
+        .map(function (name) {
+          return (
+            '<button type="button" class="kin-detail-action" data-placeholder-action="' +
+            name +
+            '">' +
+            "<span>" +
+            name +
+            '</span><small>待开放</small></button>'
+          );
+        })
+        .join("") +
       "</div>"
     );
   }
 
-  function applyKinAffinity(state, memberId, delta) {
-    if (memberId === "father") {
-      applyDelta(state, { 父亲: delta });
-      return;
+  function findKinById(state, memberId) {
+    var kin = buildKinList(state);
+    for (let i = 0; i < kin.length; i++) {
+      if (kin[i].id === memberId) return kin[i];
     }
-    if (memberId === "mother") {
-      applyDelta(state, { 母亲: delta });
-      return;
-    }
-    applyDelta(state, { 手足: delta });
+    return null;
   }
 
-  function handleKinAction(state, memberId, act) {
-    var usageKey = act + "_" + memberId;
-    if (isYearActionUsed(state, usageKey)) return;
-
-    var line = "";
-    if (act === "chat") {
-      applyKinAffinity(state, memberId, 4);
-      applyDelta(state, { 心性: 2 });
-      line = "你与亲人谈了一会近况，彼此心气都顺了些。";
-    } else if (act === "support") {
-      if (Math.random() < 0.5) {
-        applyDelta(state, { 银钱: 4 });
-        applyKinAffinity(state, memberId, -2);
-        line = "你开口求助，得了些银钱，但对方多少有些不悦。";
-      } else {
-        applyDelta(state, { 银钱: 2, 声望: 2, 体魄: -1 });
-        applyKinAffinity(state, memberId, 3);
-        line = "你主动帮忙办事，虽有些劳累，却更得亲人信任。";
-      }
-    } else {
-      return;
-    }
-
-    markYearActionUsed(state, usageKey);
-    const when = "公元 " + (ERA_START + state.character.age) + " 年（" + state.character.age + " 岁）";
-    prependFeed(state, '<div class="when">' + when + "</div>" + line);
-    renderHeader(state);
-    renderStatBars(state);
-    openSubpage("relations");
+  function openRelationMember(state, memberId) {
+    relationFocusMember = memberId;
+    const body = document.getElementById("subpage-body");
+    if (!body) return;
+    body.innerHTML = renderRelationsHtml(state);
   }
 
   function renderStudyHtml(state) {
@@ -727,30 +675,63 @@
   function renderRelationsHtml(state) {
     var kin = buildKinList(state);
     var html = '<div class="detail-sheet prose-block">';
-    html += "<p>亲族与关系已合并在此。点击成员下方动作即可互动，每个动作每年限一次。</p>";
-    kin.forEach(function (m) {
+    if (!relationFocusMember) {
+      html += "<p>亲族关系总览。先点某位亲人，再进入该人物互动页。</p>";
+      kin.forEach(function (m) {
+        html +=
+          '<div class="kin-card">' +
+          '<button type="button" class="kin-list-row" data-rel-open="' +
+          m.id +
+          '">' +
+          '<div class="kin-head">' +
+          '<div class="kin-avatar">' +
+          m.icon +
+          "</div>" +
+          '<div class="kin-meta">' +
+          '<div class="kin-name">' +
+          m.label +
+          "</div>" +
+          '<div class="kin-status">' +
+          m.status +
+          "</div>" +
+          '<div class="detail-sub">亲睦 ' +
+          affinityBar(m.affinity) +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<span class="kin-arrow">›</span>' +
+          "</button>" +
+          "</div>";
+      });
+      html += '<p class="muted">提示：后续每位亲人的互动会做成独立事件与后果。</p>';
+    } else {
+      var member = findKinById(state, relationFocusMember);
+      if (!member) {
+        relationFocusMember = null;
+        return renderRelationsHtml(state);
+      }
       html +=
+        '<button type="button" class="subpage-back" data-rel-back-list>← 返回关系列表</button>' +
         '<div class="kin-card">' +
         '<div class="kin-head">' +
         '<div class="kin-avatar">' +
-        m.icon +
+        member.icon +
         "</div>" +
         '<div class="kin-meta">' +
         '<div class="kin-name">' +
-        m.label +
+        member.label +
         "</div>" +
         '<div class="kin-status">' +
-        m.status +
+        member.status +
         "</div>" +
         '<div class="detail-sub">亲睦 ' +
-        affinityBar(m.affinity) +
+        affinityBar(member.affinity) +
         "</div>" +
         "</div>" +
         "</div>" +
-        renderKinActions(state, m.id) +
+        renderRelationActionPlaceholders() +
         "</div>";
-    });
-    html += '<p class="muted">提示：想走“家族线”就多互动，亲缘会更稳，关键年份更容易拿到支持。</p>';
+    }
     html += "</div>";
     return html;
   }
@@ -840,7 +821,6 @@
       assets: assets,
       feed: [],
       journal: [],
-      yearActionUsage: { age: 0, used: {} },
       milestonesDone: {},
       recentEventTitles: [],
       lastEvent: null,
@@ -855,15 +835,21 @@
   document.getElementById("subpage-back").addEventListener("click", closeSubpage);
   document.getElementById("subpage-body").addEventListener("click", function (ev) {
     var target = ev.target;
-    if (!target || !target.dataset) return;
-    var kinAct = target.dataset.kinAct;
-    var kinMember = target.dataset.kinMember;
-    if (!kinAct || !kinMember || !gameState) return;
-    handleKinAction(gameState, kinMember, kinAct);
-  });
-
-  document.getElementById("btn-family").addEventListener("click", function () {
-    openSubpage("family");
+    if (!target) return;
+    var button = target.closest("button");
+    if (!button || !button.dataset || !gameState) return;
+    var openMember = button.dataset.relOpen;
+    if (openMember) {
+      openRelationMember(gameState, openMember);
+      return;
+    }
+    if (button.dataset.relBackList !== undefined) {
+      relationFocusMember = null;
+      openRelationMember(gameState, null);
+      return;
+    }
+    // 占位按钮：当前版本不触发效果
+    if (button.dataset.placeholderAction) return;
   });
   document.getElementById("btn-study").addEventListener("click", function () {
     openSubpage("study");
