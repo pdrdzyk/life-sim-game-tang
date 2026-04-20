@@ -143,21 +143,42 @@
     /* —— BitLife 式顶栏 —— */
     .bl-header {
       flex-shrink: 0;
-      background: linear-gradient(180deg, #f5f0e8 0%, #e8e2d9 100%);
-      padding: 2rem 0.75rem 0.5rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      background: #fff8ed;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 0;
+    }
+    .bl-appbar {
+      background: linear-gradient(180deg, #ef3a1f 0%, #dc2e16 100%);
+      color: #fff;
+      padding: 2rem 0.72rem 0.48rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .bl-appbar .bl-brand {
+      color: #ffe083;
+      font-size: 1.2rem;
+    }
+    .bl-star {
+      font-size: 0.82rem;
+      font-weight: 700;
+      opacity: 0.95;
     }
     .bl-title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
-      gap: 0.5rem;
+      padding: 0.34rem 0.72rem 0.36rem;
+      background: #f8eedf;
+      border-top: 1px solid rgba(0, 0, 0, 0.04);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      gap: 0.35rem;
     }
     .bl-age-phase {
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      color: #4a453c;
+      color: #3f5f7c;
       white-space: nowrap;
     }
     .bl-brand {
@@ -170,6 +191,7 @@
       display: flex;
       align-items: flex-start;
       gap: 0.65rem;
+      padding: 0.45rem 0.72rem 0.5rem;
     }
     .bl-avatar {
       width: 52px;
@@ -214,11 +236,10 @@
       letter-spacing: 0.04em;
     }
     .bl-bank-val {
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      color: #b8860b;
+      color: #1f8f5c;
       line-height: 1.1;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 2px rgba(139, 90, 0, 0.18);
     }
     .bl-bank-unit {
       font-size: 0.6rem;
@@ -242,14 +263,13 @@
       flex-direction: column;
     }
 
-    /* 当前事件卡 */
+    /* 中央纪事区 */
     .event-card-wrap {
       flex-shrink: 0;
-      background: #faf6ef;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      padding: 0.55rem 0.75rem 0.65rem;
-      max-height: 38%;
+      background: #f9f3e8;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 0.4rem 0.72rem;
+      max-height: 22%;
       overflow-y: auto;
     }
     .event-card-wrap .event-card-title {
@@ -291,7 +311,7 @@
       min-height: 0;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 0.55rem 0.75rem 0.4rem;
+      padding: 0.4rem 0.72rem 0.35rem;
       font-size: 0.76rem;
       line-height: 1.45;
       color: #2d2a26;
@@ -314,30 +334,34 @@
       line-height: 1.55;
     }
 
-    /* —— 底栏：加一岁突出 + 六键 —— */
+    /* —— 底栏：中置加岁 + 四入口 —— */
     .dock-wrap {
       flex-shrink: 0;
       background: var(--dock);
-      padding: 0.45rem 0.5rem calc(0.55rem + var(--safe-bottom));
+      padding: 0.25rem 0.5rem 0.3rem;
     }
     .dock-primary {
       display: flex;
       justify-content: center;
-      margin-bottom: 0.45rem;
+      margin: -1.35rem 0 0.25rem;
+      position: relative;
+      z-index: 2;
     }
     .btn-age-wide {
-      min-width: 200px;
-      padding: 0.65rem 1.25rem;
-      border-radius: 999px;
+      width: 84px;
+      height: 84px;
+      min-width: 84px;
+      padding: 0;
+      border-radius: 50%;
       border: none;
       background: linear-gradient(180deg, #3ddc82 0%, var(--age-green) 40%, var(--age-green-dark) 100%);
       color: #fff;
       font-family: inherit;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       font-weight: 800;
-      letter-spacing: 0.06em;
+      letter-spacing: 0;
       cursor: pointer;
-      box-shadow: 0 4px 0 #1e8448, 0 8px 16px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 4px 0 #1e8448, 0 8px 16px rgba(0, 0, 0, 0.28);
       transition: transform 0.1s, filter 0.15s;
     }
     .btn-age-wide:disabled {
@@ -349,18 +373,18 @@
     .btn-age-wide:not(:disabled):active { transform: scale(0.98); }
     .dock-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.35rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.3rem;
     }
     .dock-grid-btn {
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       background: var(--dock-light);
       color: #c8d8e8;
       font-family: inherit;
-      font-size: 0.68rem;
+      font-size: 0.64rem;
       font-weight: 700;
-      padding: 0.55rem 0.25rem;
+      padding: 0.48rem 0.2rem;
       cursor: pointer;
       transition: transform 0.1s, background 0.15s;
     }
@@ -466,13 +490,13 @@
     }
     .btn-age-mini:disabled { opacity: 0.4; pointer-events: none; }
 
-    /* —— 六维属性条 —— */
+    /* —— 六维属性条（底部）—— */
     .stat-bars {
       flex-shrink: 0;
       background: #f5f0e8;
-      padding: 0.45rem 0.65rem 0.5rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      max-height: 42%;
+      padding: 0.4rem 0.65rem calc(0.42rem + var(--safe-bottom));
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      max-height: 24%;
       overflow-y: auto;
     }
     .stat-row {
@@ -595,7 +619,7 @@
       cursor: pointer;
     }
 
-    /* —— 四键子页面（自底部滑入，顶栏保持在外）—— */
+    /* —— 子页面（覆盖中下区域，保留顶部角色信息）—— */
     .subpage-root {
       position: absolute;
       left: 0;
@@ -603,7 +627,7 @@
       top: 0;
       bottom: 0;
       z-index: 50;
-      background: #ebe4d7;
+      background: #f3ecdf;
       display: flex;
       flex-direction: column;
       transform: translateY(100%);
@@ -622,14 +646,14 @@
       justify-content: space-between;
       padding: 0.65rem 0.75rem;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-      background: linear-gradient(180deg, #f2ebe0 0%, #ebe4d7 100%);
+      background: linear-gradient(180deg, #1268ad 0%, #0f5b97 100%);
       position: relative;
       min-height: 48px;
     }
     .subpage-back {
       border: none;
-      background: rgba(0, 0, 0, 0.06);
-      color: var(--ink);
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
       font-family: inherit;
       font-size: 0.88rem;
       font-weight: 600;
@@ -644,7 +668,9 @@
       left: 50%;
       transform: translateX(-50%);
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 1.02rem;
+      color: #fff;
+      letter-spacing: 0.04em;
       pointer-events: none;
       z-index: 1;
     }
@@ -849,9 +875,13 @@
 
       <section class="screen" id="screen-play">
         <header class="bl-header">
-          <div class="bl-title-row">
+          <div class="bl-appbar">
             <span class="bl-brand">长安岁华</span>
+            <span class="bl-star">声名★<span id="hdr-fame-star">0</span></span>
+          </div>
+          <div class="bl-title-row">
             <span class="bl-age-phase"><span id="hdr-age">0</span> 岁 · <span id="hdr-phase">童蒙</span></span>
+            <span class="bl-age-phase" id="hdr-status">童蒙 · 公元 713 年 · 长安</span>
           </div>
           <div class="bl-identity-row">
             <img class="bl-avatar" id="hdr-avatar" src="assets/tang-portrait-male.png" alt="" />
@@ -863,7 +893,6 @@
               <div class="bl-meta">
                 出身 <span id="hdr-origin">士族</span> · 居 <span id="hdr-city">长安</span>
               </div>
-              <div class="bl-job" id="hdr-status">童蒙 · 公元 713 年 · 长安</div>
               <div class="bl-job" id="hdr-path">志业未定向</div>
             </div>
             <div class="bl-bank">
@@ -876,8 +905,6 @@
 
         <div class="play-main">
           <div class="home-view" id="home-view">
-            <div class="stat-bars" id="stat-bars"></div>
-
             <div class="event-card-wrap" id="event-card-wrap">
               <div id="event-card"></div>
             </div>
@@ -892,11 +919,13 @@
               </div>
               <div class="dock-grid">
                 <button type="button" class="dock-grid-btn" id="btn-study">学业</button>
-                <button type="button" class="dock-grid-btn" id="btn-career">仕途</button>
-                <button type="button" class="dock-grid-btn" id="btn-relations">关系</button>
                 <button type="button" class="dock-grid-btn" id="btn-assets">资产</button>
+                <button type="button" class="dock-grid-btn" id="btn-relations">关系</button>
+                <button type="button" class="dock-grid-btn" id="btn-career">营生</button>
               </div>
             </div>
+
+            <div class="stat-bars" id="stat-bars"></div>
           </div>
 
           <div class="subpage-root" id="subpage-root" aria-hidden="true">

@@ -344,6 +344,8 @@
     document.getElementById("hdr-avatar").src = PORTRAIT[c.gender] || PORTRAIT["男"];
     document.getElementById("hdr-wealth").textContent = String(state.assets.silver);
     document.getElementById("hdr-status").textContent = getStatusLine(state);
+    var starEl = document.getElementById("hdr-fame-star");
+    if (starEl) starEl.textContent = String(Math.max(0, Math.floor(c.stats.声望 / 20)));
     var pathEl = document.getElementById("hdr-path");
     if (pathEl) pathEl.textContent = c.path ? "志业：" + c.path : "志业未定向";
   }
