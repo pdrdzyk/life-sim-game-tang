@@ -22,6 +22,8 @@
 
   // 主界面仅展示五维（对齐 BitLife 的紧凑状态栏）
   const STAT_KEYS = ["体魄", "才学", "容貌", "心性", "声望"];
+  // 隐藏维度：不在主页展示，但参与系统计算（如资产底子、死亡判定）
+  const HIDDEN_STAT_KEYS = ["家境"];
 
   const STAT_META = {
     体魄: { emoji: "💪", cls: "hp", label: "体魄" },
@@ -117,7 +119,7 @@
   function rollStatsForOrigin(origin) {
     const ranges = ORIGIN_RANGES[origin];
     const stats = {};
-    STAT_KEYS.forEach(function (k) {
+    STAT_KEYS.concat(HIDDEN_STAT_KEYS).forEach(function (k) {
       const r = ranges[k];
       stats[k] = clampStat(randInt(r[0], r[1]));
     });
@@ -168,8 +170,6 @@
     const origin = pick(ORIGINS);
     const city = pick(CITIES);
     const stats = rollStatsForOrigin(origin);
-    const silver = silverFrom家境(stats.家境);
-    const land = randInt(0, Math.floor(stats.家境 / 25));
     return {
       familyName: pick(SURNAMES),
       givenName: gender === "男" ? pick(MALE_NAMES) : pick(FEMALE_NAMES),
@@ -812,7 +812,8 @@
 
     const family = genFamily(ch);
     const assets = {
-      silver: silverFrom家境(ch.stats.家境),
+      // BitLife式：出生时个人现金统一为 0，不继承家境现金。
+      silver: 0,
       land: randInt(0, Math.floor(ch.stats.家境 / 22)),
       dwelling: dwellingFrom家境(ch.stats.家境),
     };
