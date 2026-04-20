@@ -7,6 +7,13 @@
   const ERA_START = 713;
   const ERA_NAME = "开元";
 
+  const SCENES = {
+    home: "assets/tang-scene-home.png",
+    city: "assets/tang-scene-city.png",
+    wild: "assets/tang-scene-wild.png",
+  };
+  const SCENE_LABEL = { home: "庭园", city: "城邑", wild: "山河" };
+
   const PORTRAIT = { 男: "assets/tang-portrait-male.png", 女: "assets/tang-portrait-female.png" };
 
   const ORIGINS = ["士族", "寒门", "商贾", "军户", "医家", "乐籍"];
@@ -57,22 +64,8 @@
   };
 
   let gameState = null;
+  let modalOpen = false;
   let subpageOpen = false;
-
-  /** 开局欢迎：主舞台默认展示，无选项 */
-  const WELCOME_STAGE = {
-    title: "开卷 · 降生",
-    text:
-      "啼声初落，你在开元年间的一户人家里睁开眼。姓氏门第、筋骨性情，皆已写定；此后光阴须凭己手推转。欲观世间际遇，请先点下方「加一岁」——每岁一事，抉择由你。",
-  };
-
-  function escapeHtml(s) {
-    return String(s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
 
   function randInt(a, b) {
     return a + Math.floor(Math.random() * (b - a + 1));
@@ -162,6 +155,12 @@
     return "暮年";
   }
 
+  function getStatusLine(state) {
+    const a = state.character.age;
+    const y = ERA_START + a;
+    return lifePhase(a) + " · 公元 " + y + " 年 · " + state.character.city;
+  }
+
   function showScreen(name) {
     Object.keys(screens).forEach(function (k) {
       screens[k].classList.remove("active");
@@ -244,8 +243,9 @@
     document.getElementById("hdr-phase").textContent = lifePhase(c.age);
     document.getElementById("hdr-avatar").src = PORTRAIT[c.gender] || PORTRAIT["男"];
     document.getElementById("hdr-wealth").textContent = String(state.assets.silver);
-    var eraEl = document.getElementById("hdr-era");
-    if (eraEl) eraEl.textContent = ERA_NAME + " " + (ERA_START + c.age) + " 年 · " + c.city;
+    document.getElementById("hdr-status").textContent = getStatusLine(state);
+    var pathEl = document.getElementById("hdr-path");
+    if (pathEl) pathEl.textContent = c.path ? "志业：" + c.path : "志业未定向";
   }
 
   function renderStatBars(state) {
@@ -256,75 +256,35 @@
       const meta = STAT_META[k];
       return (
         '<div class="stat-row">' +
-        '<span class="stat-name">' +
-        meta.label +
-        "</span>" +
-        '<div class="stat-track"><div class="stat-fill ' +
-        meta.cls +
-        '" style="width:' +
-        v +
-        '%"></div></div>' +
-        '<span class="stat-pct">' +
-        v +
-        "</span>" +
+        '<span class="stat-ico">' + meta.emoji + "</span>" +
+        '<span class="stat-name">' + meta.label + '</span>' +
+        '<div class="stat-track"><div class="stat-fill ' + meta.cls + '" style="width:' + v + '%"></div></div>' +
+        '<span class="stat-pct">' + v + "</span>" +
         "</div>"
       );
     }).join("");
   }
 
-  /** 主舞台：欢迎 / 待决际遇 / 上年结果 */
-  function renderMainStage(state) {
-    const inner = document.getElementById("stage-inner");
-    if (!inner) return;
-
-    if (state.waitingChoice && state.currentEvent) {
-      const evt = state.currentEvent;
-      inner.innerHTML =
-        '<h2 class="stage-title">' +
-        escapeHtml(evt.title) +
-        "</h2>" +
-        '<p class="stage-body">' +
-        escapeHtml(evt.text) +
-        '</p><div class="stage-choices" id="stage-choices"></div>';
-      const box = document.getElementById("stage-choices");
-      evt.choices.forEach(function (c, i) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "stage-choice-btn";
-        btn.textContent = i + 1 + "）" + c.label;
-        btn.addEventListener("click", function () {
-          resolveEventChoice(gameState, evt, c);
-        });
-        box.appendChild(btn);
-      });
+  function renderEventCard(state) {
+    const el = document.getElementById("event-card");
+    if (!el) return;
+    if (!state.lastEvent) {
+      el.innerHTML = '<p class="event-card-placeholder">本年尚未推进光阴。点击「加一岁」以观际遇。</p>';
       return;
     }
-
-    if (state.lastEvent) {
-      const e = state.lastEvent;
-      inner.innerHTML =
-        '<p class="stage-tag">上年回顾</p>' +
-        '<h2 class="stage-title">' +
-        escapeHtml(e.title) +
-        "</h2>" +
-        '<p class="stage-body stage-body--compact">' +
-        "你所为：「" +
-        escapeHtml(e.resultLabel) +
-        "」" +
-        escapeHtml(e.resultNote) +
-        "</p>" +
-        '<p class="stage-hint">若已阅毕，可再点「加一岁」，推进下一岁光阴。</p>';
-      return;
-    }
-
-    inner.innerHTML =
-      '<h2 class="stage-title">' +
-      escapeHtml(WELCOME_STAGE.title) +
-      "</h2>" +
-      '<p class="stage-body">' +
-      escapeHtml(WELCOME_STAGE.text) +
+    const e = state.lastEvent;
+    el.innerHTML =
+      '<h3 class="event-card-title">' +
+      e.title +
+      "</h3>" +
+      '<p class="event-card-desc">' +
+      e.text +
       "</p>" +
-      '<p class="stage-hint">点击「加一岁」，进入年岁际遇。</p>';
+      '<p class="event-card-result">上年取舍：' +
+      e.resultLabel +
+      " — " +
+      e.resultNote +
+      "</p>";
   }
 
   function prependFeed(state, htmlLine) {
@@ -347,11 +307,42 @@
       .join("");
   }
 
+  function openEventModal(evt) {
+    modalOpen = true;
+    var sceneKey = evt.scene && SCENES[evt.scene] ? evt.scene : "city";
+    document.getElementById("modal-scene").src = SCENES[sceneKey];
+    document.getElementById("modal-scene-tag").textContent = SCENE_LABEL[sceneKey] || "城邑";
+    document.getElementById("modal-title").textContent = evt.title;
+    document.getElementById("modal-body").textContent = evt.text;
+    const box = document.getElementById("modal-choices");
+    box.innerHTML = "";
+    evt.choices.forEach(function (c, i) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice";
+      btn.textContent = i + 1 + "）" + c.label;
+      btn.addEventListener("click", function () {
+        resolveEventChoice(gameState, evt, c);
+      });
+      box.appendChild(btn);
+    });
+    const m = document.getElementById("event-modal");
+    m.classList.add("open");
+    m.setAttribute("aria-hidden", "false");
+    setAgeButtonState();
+  }
+
   function setAgeButtonState() {
     const btn = document.getElementById("btn-next-year");
-    if (!btn) return;
-    const wait = gameState && gameState.waitingChoice;
-    btn.disabled = !!wait || subpageOpen;
+    btn.disabled = modalOpen || subpageOpen;
+  }
+
+  function closeEventModal() {
+    modalOpen = false;
+    const m = document.getElementById("event-modal");
+    m.classList.remove("open");
+    m.setAttribute("aria-hidden", "true");
+    setAgeButtonState();
   }
 
   function resolveEventChoice(state, evt, choice) {
@@ -379,13 +370,10 @@
     state.journal = state.journal || [];
     state.journal.push({ age: c.age, title: evt.title, note: choice.note });
 
-    state.currentEvent = null;
-    state.waitingChoice = false;
-
+    closeEventModal();
     renderHeader(state);
     renderStatBars(state);
-    renderMainStage(state);
-    setAgeButtonState();
+    renderEventCard(state);
     const d = checkDeath(state);
     if (d) endGame(state, d);
   }
@@ -448,6 +436,7 @@
     endImg.src = PORTRAIT[c.gender] || PORTRAIT["男"];
     endImg.hidden = false;
     gameState = null;
+    closeEventModal();
     closeSubpage();
     showScreen("end");
   }
@@ -589,9 +578,8 @@
   }
 
   function tryAdvanceYear() {
-    if (!gameState || subpageOpen) return;
+    if (!gameState || modalOpen || subpageOpen) return;
     const state = gameState;
-    if (state.waitingChoice) return;
     state.character.age += 1;
     const death = checkDeath(state);
     if (death) {
@@ -601,19 +589,14 @@
       return;
     }
     const evt = pickEvent(state.character.age, state.character.origin) || fallbackEvent();
-    state.currentEvent = evt;
-    state.waitingChoice = true;
     renderHeader(state);
     renderStatBars(state);
-    renderMainStage(state);
-    setAgeButtonState();
+    openEventModal(evt);
   }
 
   function initPlay(state) {
     state.feed = [];
     state.lastEvent = null;
-    state.currentEvent = null;
-    state.waitingChoice = false;
     prependFeed(
       state,
       '<div class="when">' +
@@ -626,7 +609,7 @@
     );
     renderHeader(state);
     renderStatBars(state);
-    renderMainStage(state);
+    renderEventCard(state);
     setAgeButtonState();
   }
 
@@ -654,8 +637,6 @@
       feed: [],
       journal: [],
       lastEvent: null,
-      currentEvent: null,
-      waitingChoice: false,
       lifespanCap: 65 + randInt(0, 28),
     };
 
