@@ -168,6 +168,47 @@
     screens[name].classList.add("active");
   }
 
+  /** 关键年龄节点：保证人生节奏有“关口感” */
+  const MILESTONE_EVENTS = {
+    6: function (state) {
+      return {
+        scene: "home",
+        title: "六岁开蒙",
+        text: "家中择日行开蒙礼。塾师执笔点额，问你往后愿走何途。",
+        choices: [
+          { label: "先立规矩，从《千字文》起。", note: "根基稳实，心性亦定。", delta: { 才学: 5, 心性: 4 } },
+          { label: "愿习骑射，不只困于案前。", note: "筋骨见长，志气稍扬。", delta: { 体魄: 5, 才学: 1 } },
+          { label: "想先看人间百业，再定志向。", note: "眼界先开。", delta: { 心性: 4, 声望: 2 } },
+        ],
+      };
+    },
+    15: function (state) {
+      var genderLabel = state.character.gender === "男" ? "及冠之礼" : "及笄之礼";
+      return {
+        scene: "city",
+        title: genderLabel,
+        text: "宗族为你设礼，亲长与宾朋俱在。礼成之后，人人都在等你表明往后之志。",
+        choices: [
+          { label: "立志读书求仕。", note: "以经史为阶，愿登公门。", delta: { 才学: 6, 声望: 4, path: "读书求仕" } },
+          { label: "愿试商路，先从市井学起。", note: "利与险并行。", delta: { 家境: 4, 心性: 3, path: "经商" } },
+          { label: "愿习兵事，以身许国。", note: "弓马之外，亦见风霜。", delta: { 体魄: 7, 声望: 3, path: "从军" } },
+        ],
+      };
+    },
+    22: function (state) {
+      return {
+        scene: "city",
+        title: "立身抉择",
+        text: "二十有二，旧日同伴多已各归其途。你亦须定下一条可长可久的路。",
+        choices: [
+          { label: "先求一职，稳住家门生计。", note: "脚下渐稳。", delta: { 家境: 6, 声望: 3 } },
+          { label: "再磨三年技艺，不急一时。", note: "厚积待发。", delta: { 才学: 5, 心性: 4 } },
+          { label: "远行他州，凭本事闯一番。", note: "见识大增，劳顿亦多。", delta: { 声望: 4, 体魄: -2, 家境: 2 } },
+        ],
+      };
+    },
+  };
+
   /** 事件池无匹配时的兜底（理论上极少触发） */
   function fallbackEvent() {
     return {
@@ -182,7 +223,18 @@
     };
   }
 
-  function pickEvent(age, origin) {
+  function pickMilestoneEvent(state) {
+    const builder = MILESTONE_EVENTS[state.character.age];
+    if (!builder) return null;
+    if (state.milestonesDone[state.character.age]) return null;
+    const evt = builder(state);
+    state.milestonesDone[state.character.age] = true;
+    return evt;
+  }
+
+  function pickEvent(state) {
+    const age = state.character.age;
+    const origin = state.character.origin;
     const EVENTS = window.GAME_EVENTS || [];
     const pool = EVENTS.filter(function (e) {
       if (age < e.minAge || age > e.maxAge) return false;
@@ -194,12 +246,25 @@
     pool.forEach(function (e) {
       let w = e.weight || 1;
       if (e.originBias && e.originBias[origin]) w *= e.originBias[origin];
+      // 降低连续重复事件，避免“同一年味道”过强
+      if (state.recentEventTitles.indexOf(e.title) !== -1) w *= 0.25;
+      if (state.character.path && e.pathBias && e.pathBias[state.character.path]) {
+        w *= e.pathBias[state.character.path];
+      }
+      if (age <= 5 && e.minAge <= 2) w *= 1.1;
+      if (age >= 23 && e.maxAge >= 30) w *= 1.1;
       total += w;
     });
     let r = Math.random() * total;
     for (let i = 0; i < pool.length; i++) {
       let w = pool[i].weight || 1;
       if (pool[i].originBias && pool[i].originBias[origin]) w *= pool[i].originBias[origin];
+      if (state.recentEventTitles.indexOf(pool[i].title) !== -1) w *= 0.25;
+      if (state.character.path && pool[i].pathBias && pool[i].pathBias[state.character.path]) {
+        w *= pool[i].pathBias[state.character.path];
+      }
+      if (age <= 5 && pool[i].minAge <= 2) w *= 1.1;
+      if (age >= 23 && pool[i].maxAge >= 30) w *= 1.1;
       r -= w;
       if (r <= 0) return pool[i];
     }
@@ -369,6 +434,8 @@
     };
     state.journal = state.journal || [];
     state.journal.push({ age: c.age, title: evt.title, note: choice.note });
+    state.recentEventTitles.push(evt.title);
+    state.recentEventTitles = state.recentEventTitles.slice(-3);
 
     closeEventModal();
     renderHeader(state);
@@ -588,7 +655,7 @@
       endGame(state, death);
       return;
     }
-    const evt = pickEvent(state.character.age, state.character.origin) || fallbackEvent();
+    const evt = pickMilestoneEvent(state) || pickEvent(state) || fallbackEvent();
     renderHeader(state);
     renderStatBars(state);
     openEventModal(evt);
@@ -636,6 +703,8 @@
       assets: assets,
       feed: [],
       journal: [],
+      milestonesDone: {},
+      recentEventTitles: [],
       lastEvent: null,
       lifespanCap: 65 + randInt(0, 28),
     };
