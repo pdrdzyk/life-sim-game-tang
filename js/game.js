@@ -79,6 +79,40 @@
     return Math.max(STAT_MIN, Math.min(STAT_MAX, Math.round(n)));
   }
 
+  /**
+   * 文案易读化：保留古风语感，但替换现代玩家不易理解的生僻词。
+   * 只影响显示文本，不改动原始事件数据。
+   */
+  function readableCopy(input) {
+    var s = String(input || "");
+    const MAP = [
+      ["襁褓", "幼时"],
+      ["违和", "身体不适"],
+      ["干谒", "拜访求荐"],
+      ["讼败", "官司输了"],
+      ["仓猝", "仓促"],
+      ["门庭冷落", "家门冷清"],
+      ["耆老", "乡里长者"],
+      ["辟你为记室", "请你做幕僚文书"],
+      ["纳绢代役", "交钱免役"],
+      ["骑射", "骑马射箭"],
+      ["投笔从戎", "弃文从军"],
+      ["焚膏继晷", "日夜苦读"],
+      ["檐马声稀", "屋檐风铃声也少了"],
+      ["益州", "益州（蜀地）"],
+      ["陇右", "西北边地"],
+      ["落孙山", "考试落榜"],
+      ["中规中举", "稳妥应试"],
+      ["棱角暗藏", "心里不服但先忍着"],
+      ["孤芳自赏", "只给自己看"],
+      ["清议难避", "难免被人议论"],
+    ];
+    MAP.forEach(function (pair) {
+      s = s.replace(new RegExp(pair[0], "g"), pair[1]);
+    });
+    return s;
+  }
+
   function rollStatsForOrigin(origin) {
     const ranges = ORIGIN_RANGES[origin];
     const stats = {};
@@ -340,15 +374,15 @@
     const e = state.lastEvent;
     el.innerHTML =
       '<h3 class="event-card-title">' +
-      e.title +
+      readableCopy(e.title) +
       "</h3>" +
       '<p class="event-card-desc">' +
-      e.text +
+      readableCopy(e.text) +
       "</p>" +
       '<p class="event-card-result">上年取舍：' +
-      e.resultLabel +
+      readableCopy(e.resultLabel) +
       " — " +
-      e.resultNote +
+      readableCopy(e.resultNote) +
       "</p>";
   }
 
@@ -377,15 +411,15 @@
     var sceneKey = evt.scene && SCENES[evt.scene] ? evt.scene : "city";
     document.getElementById("modal-scene").src = SCENES[sceneKey];
     document.getElementById("modal-scene-tag").textContent = SCENE_LABEL[sceneKey] || "城邑";
-    document.getElementById("modal-title").textContent = evt.title;
-    document.getElementById("modal-body").textContent = evt.text;
+    document.getElementById("modal-title").textContent = readableCopy(evt.title);
+    document.getElementById("modal-body").textContent = readableCopy(evt.text);
     const box = document.getElementById("modal-choices");
     box.innerHTML = "";
     evt.choices.forEach(function (c, i) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "choice";
-      btn.textContent = i + 1 + "）" + c.label;
+      btn.textContent = i + 1 + "）" + readableCopy(c.label);
       btn.addEventListener("click", function () {
         resolveEventChoice(gameState, evt, c);
       });
@@ -419,18 +453,18 @@
       when +
       "</div>" +
       "「" +
-      evt.title +
+      readableCopy(evt.title) +
       "」" +
-      choice.label.replace(/。$/, "") +
+      readableCopy(choice.label).replace(/。$/, "") +
       "。" +
-      choice.note;
+      readableCopy(choice.note);
     prependFeed(state, line);
 
     state.lastEvent = {
-      title: evt.title,
-      text: evt.text,
-      resultLabel: choice.label,
-      resultNote: choice.note,
+      title: readableCopy(evt.title),
+      text: readableCopy(evt.text),
+      resultLabel: readableCopy(choice.label),
+      resultNote: readableCopy(choice.note),
     };
     state.journal = state.journal || [];
     state.journal.push({ age: c.age, title: evt.title, note: choice.note });
