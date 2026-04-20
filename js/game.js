@@ -20,14 +20,14 @@
 
   const CITIES = ["长安", "洛阳", "扬州", "益州", "幽州", "广州", "荆州", "苏州"];
 
-  const STAT_KEYS = ["体魄", "才学", "容貌", "心性", "家境", "声望"];
+  // 主界面仅展示五维（对齐 BitLife 的紧凑状态栏）
+  const STAT_KEYS = ["体魄", "才学", "容貌", "心性", "声望"];
 
   const STAT_META = {
     体魄: { emoji: "💪", cls: "hp", label: "体魄" },
     才学: { emoji: "📜", cls: "study", label: "才学" },
     容貌: { emoji: "🌸", cls: "look", label: "容貌" },
     心性: { emoji: "🎋", cls: "mind", label: "心性" },
-    家境: { emoji: "🏯", cls: "home", label: "家境" },
     声望: { emoji: "🏮", cls: "fame", label: "声望" },
   };
 
@@ -318,6 +318,8 @@
     STAT_KEYS.forEach(function (k) {
       if (d[k] != null) c.stats[k] = clampStat(c.stats[k] + d[k]);
     });
+    // 家境改为隐藏维度：不在主页展示，但仍用于资产与生存判定。
+    if (d.家境 != null) c.stats.家境 = clampStat(c.stats.家境 + d.家境);
 
     if (d.银钱 != null) {
       state.assets.silver = Math.max(0, Math.round(state.assets.silver + d.银钱));
@@ -532,8 +534,6 @@
       s.容貌 +
       " · 心性" +
       s.心性 +
-      " · 家境" +
-      s.家境 +
       " · 声望" +
       s.声望;
     const endImg = document.getElementById("end-portrait");
