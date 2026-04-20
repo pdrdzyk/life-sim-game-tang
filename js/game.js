@@ -310,6 +310,56 @@
     return d;
   }
 
+  function ensureYearActionUsage(state) {
+    if (!state.yearActionUsage || state.yearActionUsage.age !== state.character.age) {
+      state.yearActionUsage = { age: state.character.age, used: {} };
+    }
+  }
+
+  function isYearActionUsed(state, key) {
+    ensureYearActionUsage(state);
+    return !!state.yearActionUsage.used[key];
+  }
+
+  function markYearActionUsed(state, key) {
+    ensureYearActionUsage(state);
+    state.yearActionUsage.used[key] = true;
+  }
+
+  function handleRelationAction(state, actionKey) {
+    if (isYearActionUsed(state, actionKey)) return;
+
+    var line = "";
+    if (actionKey === "greetParents") {
+      const plus = 3 + randInt(0, 2);
+      applyDelta(state, { 父亲: plus, 母亲: plus, 心性: 1 });
+      line = "晨昏定省，你向双亲问安。父母神色稍和，家中气氛也更安稳。";
+    } else if (actionKey === "spendWithSiblings") {
+      applyDelta(state, { 手足: 5, 心性: 2, 体魄: 1 });
+      line = "你与手足同游坊巷、闲话家常。争执少了，情分更近。";
+    } else if (actionKey === "familyDuty") {
+      // 同一按钮内做二选一，形成轻度风险/回报。
+      if (Math.random() < 0.5) {
+        applyDelta(state, { 银钱: 5, 父亲: -2, 母亲: -1, 心性: -1 });
+        line = "你开口向家里索要资助，银钱宽裕了些，但长辈脸色不太好看。";
+      } else {
+        applyDelta(state, { 银钱: 3, 父亲: 3, 母亲: 3, 心性: 2, 体魄: -1 });
+        line = "你替家里跑腿办事、对账收支，虽有些劳累，却更得长辈信任。";
+      }
+    } else {
+      return;
+    }
+
+    markYearActionUsed(state, actionKey);
+
+    const when = "公元 " + (ERA_START + state.character.age) + " 年（" + state.character.age + " 岁）";
+    prependFeed(state, '<div class="when">' + when + "</div>" + line);
+    renderHeader(state);
+    renderStatBars(state);
+    // 保持在关系页实时刷新按钮状态
+    openSubpage("relations");
+  }
+
   function applyDelta(state, delta) {
     const d = normalizeDelta(delta);
     const c = state.character;
@@ -644,10 +694,31 @@
   }
 
   function renderRelationsHtml(state) {
+    var canGreet = !isYearActionUsed(state, "greetParents");
+    var canSiblings = !isYearActionUsed(state, "spendWithSiblings");
+    var canFamilyDuty = !isYearActionUsed(state, "familyDuty");
     return (
       '<div class="detail-sheet prose-block">' +
-      "<p>亲族详列见「家庭」。坊曲之交、同年之谊，此卷尚简。</p>" +
-      '<p class="muted">日后可增友人、婚配、门生等。</p>' +
+      "<p>亲族详列见「家庭」。这一版先开放三项日常互动，每项每年可做一次。</p>" +
+      '<div class="detail-row"><span class="detail-k">问候父母</span><span class="detail-v">' +
+      (canGreet ? "可进行" : "本年已做") +
+      "</span></div>" +
+      '<button type="button" class="subpage-back" data-rel-action="greetParents" ' +
+      (canGreet ? "" : "disabled") +
+      '>问候父母</button>' +
+      '<div class="detail-row"><span class="detail-k">与手足相处</span><span class="detail-v">' +
+      (canSiblings ? "可进行" : "本年已做") +
+      "</span></div>" +
+      '<button type="button" class="subpage-back" data-rel-action="spendWithSiblings" ' +
+      (canSiblings ? "" : "disabled") +
+      '>与手足相处</button>' +
+      '<div class="detail-row"><span class="detail-k">索要资助 / 帮家里做事</span><span class="detail-v">' +
+      (canFamilyDuty ? "可进行" : "本年已做") +
+      "</span></div>" +
+      '<button type="button" class="subpage-back" data-rel-action="familyDuty" ' +
+      (canFamilyDuty ? "" : "disabled") +
+      '>索要资助 / 帮家里做事</button>' +
+      '<p class="muted">每次互动都会立即影响好感、家境或个人状态。</p>' +
       "</div>"
     );
   }
@@ -737,6 +808,7 @@
       assets: assets,
       feed: [],
       journal: [],
+      yearActionUsage: { age: 0, used: {} },
       milestonesDone: {},
       recentEventTitles: [],
       lastEvent: null,
@@ -749,6 +821,13 @@
 
   document.getElementById("btn-next-year").addEventListener("click", tryAdvanceYear);
   document.getElementById("subpage-back").addEventListener("click", closeSubpage);
+  document.getElementById("subpage-body").addEventListener("click", function (ev) {
+    var target = ev.target;
+    if (!target || !target.dataset) return;
+    var action = target.dataset.relAction;
+    if (!action || !gameState) return;
+    handleRelationAction(gameState, action);
+  });
 
   document.getElementById("btn-family").addEventListener("click", function () {
     openSubpage("family");
